@@ -1,6 +1,55 @@
 .section {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 4rem 2rem;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+}
+
+.textContainer {
+    flex: 1;
+
+    text-align: left;
+    padding: 0 2rem;
+    margin-left:30px;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #000;
+    border-left: 4px solid #000;
+    padding-left: 0.5rem;
+    line-height: 1.2;
+}
+
+.description {
+    font-size: 1.125rem;
+    color: #666;
+    line-height: 1.5;
+    max-width: 450px;
+    margin-top: 1rem;
+}
+
+.imageContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right:30px;
+}
+
+.image {
+    max-width: 100%;
+    height: auto;
+
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+.section {
+    display: flex;
+    align-items: center;
     padding: 40px;
     background-color: #f0f0f0;
     height: 100vh;
