@@ -23,7 +23,7 @@ const WhySection: React.FC = () => {
             </div>
 
             {/* 버블 섹션 */}
-            <div className="flex-1 flex flex-col items-end gap-10 mr-60 mb-100 ">
+            <div className="flex-1 flex flex-col items-end gap-10 mr-60 mb-150 ">
                 {/* 첫 번째 버블 */}
                 <div
                     ref={ref1}

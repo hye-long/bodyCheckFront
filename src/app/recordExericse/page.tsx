@@ -1,23 +1,66 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {collection, addDoc, getDocs, query, where, orderBy, deleteDoc, doc} from "firebase/firestore";
+import {
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    deleteDoc,
+    doc,
+    getDoc,
+} from "firebase/firestore";
 import { firestore } from "@/app/firestore/firebase";
 import useAuthStore from "@/store/useAuthStore";
 import DashboardLayout from "@/app/componenets/dashboardLayout";
 import SingleBarChart from "@/app/componenets/BarChart";
+import AnalysisResultTable from "@/app/componenets/AnalysisResultTable";
 
 const RecordExercise = () => {
     const userId = useAuthStore((state) => state.userId); // 로그인된 사용자 ID
-    const [currentImage, setCurrentImage] = useState<string | null>(null); // 현재 업로드된 이미지 URL
+    const [currentImage, setCurrentImage] = useState<File | null>(null); // 업로드된 이미지 파일
+    const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null); // 업로드된 이미지 URL
     const [analysisResult, setAnalysisResult] = useState<number[] | null>(null); // 서버 분석 결과
     const [uploadedImages, setUploadedImages] = useState<any[]>([]); // Firestore에서 가져온 저장된 이미지
     const [chartData, setChartData] = useState<any[]>([]); // BarChart 데이터 (BMI, 체중, 체지방률)
     const [isAnalyzing, setIsAnalyzing] = useState(false); // 분석 중 상태
-    const [height, setHeight] = useState<string>(""); // 키 입력
-    const [bmi, setBmi] = useState<string>(""); // BMI 입력
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [height, setHeight] = useState<string>(""); // Firestore에서 가져온 키
+    const [bmi, setBmi] = useState<string>(""); // Firestore에서 가져온 BMI
+    const [selectedImage, setSelectedImage] = useState<any | null>(null); // 클릭된 이미지 데이터
 
+    const selectedLabels = [
+        "머리둘레",
+        "목둘레",
+        "허리둘레",
+        "엉덩이둘레",
+        "무릎둘레",
+        "장딴지둘레",
+        "어깨사이 너비",
+    ];
+
+    // Firestore에서 사용자 데이터 가져오기
+    const fetchUserData = async () => {
+        try {
+            const userDoc = await getDocs(
+                query(collection(firestore, "users"), where("id", "==", userId))
+            );
+
+            const userData = userDoc.docs[0]?.data();
+            if (userData) {
+                setHeight(userData.height || "");
+                setBmi(userData.bmi || "");
+                setChartData([
+                    { name: "BMI", value: userData.bmi },
+                    { name: "체중", value: userData.weight },
+                    { name: "체지방률", value: userData.bodyFat },
+                ]);
+            }
+        } catch (error) {
+            console.error("사용자 데이터 가져오기 실패:", error);
+        }
+    };
 
     // Firestore에서 저장된 이미지 목록 가져오기
     const fetchUploadedImages = async () => {
@@ -29,6 +72,7 @@ const RecordExercise = () => {
             const images = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
+                timestamp: doc.data().timestamp.toDate().toLocaleString(), // 타임스탬프 변환
             }));
 
             setUploadedImages(images);
@@ -37,26 +81,29 @@ const RecordExercise = () => {
         }
     };
 
-    // Firestore에서 사용자 데이터 가져오기
-    const fetchUserChartData = async () => {
+    // Firestore에서 이미지 데이터 로드
+    const fetchImageDetails = async (imageId: string) => {
         try {
-            const userDoc = await getDocs(
-                query(collection(firestore, "users"), where("id", "==", userId))
-            );
+            const docRef = doc(firestore, "images", imageId);
+            const docSnap = await getDoc(docRef);
 
-            const userData = userDoc.docs[0]?.data();
-            if (userData) {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setAnalysisResult(data.analysisResult);
                 setChartData([
-                    { name: "BMI", value: userData.bmi },
-                    { name: "체중", value: userData.weight },
+                    { name: "BMI", value: data.analysisResult[0] || 0 },
+                    { name: "체중", value: data.analysisResult[1] || 0 },
                 ]);
+                setSelectedImage({ ...data, timestamp: data.timestamp.toDate().toLocaleString() });
+            } else {
+                console.error("이미지 데이터를 찾을 수 없습니다.");
             }
         } catch (error) {
-            console.error("사용자 데이터 가져오기 실패:", error);
+            console.error("Firestore에서 이미지 데이터 로드 중 오류 발생:", error);
         }
     };
 
-    // Cloudinary로 이미지 업로드
+    // Cloudinary 이미지 업로드 및 서버로 분석 요청
     const handleImageUpload = () => {
         if (!window.cloudinary) {
             alert("Cloudinary 스크립트가 로드되지 않았습니다.");
@@ -68,7 +115,7 @@ const RecordExercise = () => {
                 cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!,
                 uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!,
             },
-            async (error, result) => {
+            async (error: any, result: any) => {
                 if (error) {
                     console.error("Cloudinary 업로드 오류:", error);
                     return;
@@ -76,8 +123,14 @@ const RecordExercise = () => {
 
                 if (result.event === "success") {
                     const uploadedUrl = result.info.secure_url;
-                    setCurrentImage(uploadedUrl);
-                    await handleAnalyze(uploadedUrl); // 분석 요청
+                    setCurrentImageUrl(uploadedUrl);
+
+                    // 이미지 파일 가져오기
+                    const fileBlob = await fetch(uploadedUrl).then((res) => res.blob());
+                    const file = new File([fileBlob], "uploaded_image.jpg", { type: fileBlob.type });
+                    setCurrentImage(file);
+
+                    console.log("Cloudinary 업로드 완료:", uploadedUrl);
                 }
             }
         );
@@ -85,26 +138,24 @@ const RecordExercise = () => {
         widget.open();
     };
 
-
-
     // 서버로 분석 요청
-    const handleAnalyze = async (imageUrl: string) => {
-        if (!imageUrl || !height || !bmi) {
-            alert("이미지, 키(cm), BMI를 입력하세요.");
+    const handleAnalyze = async () => {
+        if (!currentImage || !height || !bmi) {
+            alert("이미지 업로드 후 분석을 진행해주세요.");
             return;
         }
+
+        const formData = new FormData();
+        formData.append("image", currentImage); // 이미지 파일 추가
+        formData.append("height", height);
+        formData.append("bmi", bmi);
 
         setIsAnalyzing(true);
 
         try {
             const response = await fetch("/predict", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    image: imageUrl,
-                    height,
-                    bmi,
-                }),
+                body: formData,
             });
 
             if (response.ok) {
@@ -114,7 +165,7 @@ const RecordExercise = () => {
                 // Firestore에 분석 결과 저장
                 await addDoc(collection(firestore, "images"), {
                     userId,
-                    imageUrl,
+                    imageUrl: currentImageUrl,
                     analysisResult: data.result,
                     timestamp: new Date(),
                 });
@@ -132,136 +183,99 @@ const RecordExercise = () => {
 
     // 초기 데이터 로드
     useEffect(() => {
+        fetchUserData();
         fetchUploadedImages();
-        fetchUserChartData();
     }, []);
-
-    //이미지 클릭
-    const handleImageClick = (imageId: string) => {
-        setSelectedImage((prev) => (prev === imageId ? null : imageId)); // 클릭 시 토글
-    };
-
-    //이미지 삭제
-    const handleDeleteImage = async (imageId: string) => {
-        try {
-            await deleteDoc(doc(firestore, "images", imageId)); // Firestore에서 삭제
-            setUploadedImages((prev) => prev.filter((img) => img.id !== imageId)); // 로컬 상태에서 제거
-            setSelectedImage(null); // 선택 상태 초기화
-        } catch (error) {
-            console.error("이미지 삭제 중 오류 발생:", error);
-        }
-    };
 
     return (
         <DashboardLayout>
             <div className="flex h-screen bg-gray-100">
                 {/* 왼쪽: 이미지 업로드 및 분석 */}
-                <div className="w-1/3  p-4">
-                    <h2 className="text-xl font-bold mb-4">사진 업로드</h2>
+                <div className="w-1/3 p-4">
+                    <h2 className="text-xl font-bold mb-2">사진 업로드</h2>
+                    <p className="text-sm mb-4"> 사진 업로드 후 분석하기를 눌러주세요 </p>
+                    <div className="flex relative flex-row items-start">
+                        <img
+                            src="/images/analyzeOne.png" // 미니어처 이미지 고정
+                            alt="미니어처"
+                            className="w-1/2 border rounded-lg"
+                        />
+                        <div className="pl-6 flex flex-col gap-4">
+                            {selectedLabels.map((label, index) => (
+                                <div key={index} className="flex items-center gap-2">
+                                    <span className="font-medium text-lg">{label}:</span>
+                                    <span className="text-gray-700">
+                                        {analysisResult && analysisResult[index] !== undefined
+                                            ? analysisResult[index].toFixed(2)
+                                            : " "}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    {selectedImage && (
+                        <div className="mt-4 text-gray-600">
+                            <p>저장된 날짜: {selectedImage.timestamp}</p>
+                        </div>
+                    )}
                     <button
                         onClick={handleImageUpload}
-                        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        className="w-full px-4 mt-10 py-2 bg-gray-100 border-2 text-black rounded-lg hover:bg-blue-700"
                     >
                         이미지 업로드
                     </button>
-                    <input
-                        type="number"
-                        placeholder="키(cm)"
-                        value={height}
-                        onChange={(e) => setHeight(e.target.value)}
-                        className="block w-full mt-4 px-4 py-2 border rounded"
-                    />
-                    <input
-                        type="number"
-                        placeholder="BMI"
-                        value={bmi}
-                        onChange={(e) => setBmi(e.target.value)}
-                        className="block w-full mt-2 px-4 py-2 border rounded"
-                    />
+                    <button
+                        onClick={handleAnalyze}
+                        disabled={isAnalyzing || !currentImage}
+                        className="w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-green-700 mt-4"
+                    >
+                        {isAnalyzing ? "분석 중..." : "분석하기"}
+                    </button>
                 </div>
 
                 {/* 가운데: 분석 결과 및 Bar Chart */}
-                <div className="w-1/3  p-4">
-                    <h2 className="text-xl font-bold mb-4">분석 결과</h2>
-                    {analysisResult ? (
-                        <div>
-                            <img
-                                src="/images/analyzeBody.png"
-                                alt="분석 이미지"
-                                className="w-full h-auto mb-4"
-                            />
-                            <ul>
-                                {analysisResult.map((value, index) => (
-                                    <li key={index}>
-                                        항목 {index + 1}: {value.toFixed(2)}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ) : (
-                        <p>분석 결과가 없습니다. 이미지를 업로드하고 분석을 진행하세요.</p>
-                    )}
-                    <div className="w-full mt-2">
-                        {/* BMI 차트 */}
-                        <h2 className="text-lg font-bold mb-2">BMI 차트</h2>
-                        <div className="w-full" style={{height: "80px"}}> {/* Slim chart container */}
-                            <SingleBarChart label="BMI" value={chartData[0]?.value || 0} color="#4CAF50" maxScale={50}
-                                            stepSize={5}/>
-                        </div>
+                <div className="w-1/3 p-4">
+                    <div className="mt-4">
+                        <h3 className="text-xl font-bold">BMI 차트</h3>
+                        <SingleBarChart
+                            label="BMI"
+                            value={chartData[0]?.value || 0}
+                            color="gray-100"
+                            maxScale={50}
+                            stepSize={5}
+                        />
+                        <h3 className="text-xl font-bold mt-4">체중 차트</h3>
+                        <SingleBarChart
+                            label="체중"
+                            value={chartData[1]?.value || 0}
+                            color="gray-100"
+                            maxScale={100}
+                            stepSize={10}
+                        />
 
-                        {/* 체중 차트 */}
-                        <h2 className="text-lg font-bold mt-8 ">체중 차트</h2>
-                        <div className="w-full mb-2" style={{height: "80px"}}> {/* Slim chart container */}
-                            <SingleBarChart label="체중" value={chartData[1]?.value || 0} color="#FFC107" maxScale={100}
-                                            stepSize={10}/>
-                        </div>
-
-                        {/* 체지방률 차트 */}
-                        <h2 className="text-lg font-bold mt-10 mb-2">체지방률 차트</h2>
-                        <div className="w-full" style={{height: "80px"}}> {/* Slim chart container */}
-                            <SingleBarChart label="체지방률" value={chartData[2]?.value || 0} color="#03A9F4"/>
-                        </div>
+                        <h3 className="text-2xl font-bold mt-4">분석결과</h3>
+                        <AnalysisResultTable analysisResult={analysisResult} />
                     </div>
-
                 </div>
 
-                {/* 오른쪽: 저장된 사진 */}
-                <div className="w-1/3  p-4 overflow-y-scroll">
+                {/* 오른쪽: 저장된 이미지 목록 */}
+                <div className="w-1/3 p-4 overflow-y-scroll">
                     <h2 className="text-xl font-bold mb-4">저장된 사진</h2>
-                    <div className="grid grid-cols-2 gap-4"> {/* 2열 그리드 레이아웃 */}
+                    <div className="grid grid-cols-2 gap-4">
                         {uploadedImages.map((img) => (
-                            <div
-                                key={img.id}
-                                className="relative flex flex-col items-center"
-                            >
-                                {/* 이미지 */}
+                            <div key={img.id} className="relative flex flex-col items-center">
                                 <img
                                     src={img.imageUrl}
                                     alt="저장된 사진"
                                     className="w-full h-56 object-cover rounded-lg cursor-pointer"
-                                    onClick={() => handleImageClick(img.id)} // 클릭하면 선택 상태 토글
+                                    onClick={() => fetchImageDetails(img.id)}
                                 />
-
-                                {/* 분석 결과 */}
-                                <p className="text-sm text-gray-700 mt-2">
-                                </p>
-
-                                {/* 삭제 버튼 */}
-                                {selectedImage === img.id && ( // 선택된 이미지일 때만 삭제 버튼 표시
-                                    <button
-                                        className="absolute top-2 right-2 px-3 py-1  bg-red-500 text-white rounded-lg shadow-lg hover:bg-red-600"
-                                        onClick={() => handleDeleteImage(img.id)}
-                                    >
-                                        삭제
-                                    </button>
-                                )}
+                                <p className="text-sm mt-2 text-gray-600">{img.timestamp}</p>
                             </div>
                         ))}
                     </div>
                 </div>
-
             </div>
-
         </DashboardLayout>
     );
 };

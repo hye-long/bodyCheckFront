@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     return (
         <ProtectedRoute isRestricted={true}>
-            <div className="flex h-screen">
+            <div className="flex h-screen bg-gray-100">
                 <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
                 <div className="flex flex-col flex-1">
                     <Header toggleSidebar={toggleSidebar} />

@@ -20,7 +20,6 @@ const ImageUploader: React.FC = () => {
         '손목둘레', '위팔길이', '팔길이', '어깨사이 너비', '머리수직길이', '얼굴수직 길이',
         '발크기', '발너비', '얼굴 너비', '손 직선 길이', '손바닥 직선길이', '손 안쪽 각주 직선 길이',
     ];
-
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {

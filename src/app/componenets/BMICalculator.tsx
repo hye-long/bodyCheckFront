@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useUserStore } from "@/store/userStore"; // Zustand 스토어 사용
 
-// BMI와 체지방률 계산 함수
+// BMI 계산 함수
 const calculateBMI = (height: number, weight: number): number => {
     if (height <= 0 || weight <= 0) return 0;
     const heightInMeters = height / 100; // cm를 m로 변환
     return parseFloat((weight / (heightInMeters * heightInMeters)).toFixed(2));
 };
 
+// 체지방률 계산 함수
 const calculateBodyFat = (bmi: number, age: number, gender: string): number => {
     if (bmi <= 0 || age <= 0) return 0;
 
-    // 간단한 체지방률 계산 공식 (성별 차이를 반영)
+    //  체지방률 계산 공식 (성별 차이를 반영)
     return parseFloat(
         (
             gender === "남성"
@@ -28,7 +29,7 @@ const BMICalculator: React.FC = () => {
 
     useEffect(() => {
         const calculateAndUpdateMetrics = async () => {
-            if (userData && userData.height > 0 && userData.weight > 0) {
+            if (userData && userData.height > 0 && userData.weight > 0 && userData.age > 0) {
                 // BMI 계산
                 const calculatedBMI = calculateBMI(userData.height, userData.weight);
                 setBMI(calculatedBMI);
@@ -55,7 +56,7 @@ const BMICalculator: React.FC = () => {
                     console.error("Firestore 업데이트 중 오류 발생:", error);
                 }
             } else {
-                console.warn("사용자 데이터가 올바르지 않습니다. 키와 몸무게를 확인하세요.");
+                console.warn("사용자 데이터가 올바르지 않습니다. 키와 몸무게, 나이를 확인하세요.");
             }
         };
 
@@ -63,7 +64,8 @@ const BMICalculator: React.FC = () => {
     }, [userData, updateUser]);
 
     return (
-        <div >
+        <div className="p-4">
+
         </div>
     );
 };

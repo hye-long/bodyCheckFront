@@ -1,17 +1,20 @@
+// 얘는 뭐냐면
+// 이미지 업로드하고 서버에 보내는 거까지 포함하는 컴포넌트
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
-interface ImageUploadComponentProps {
-    onAnalyze: (uploadedUrl: string) => void; // 분석 요청 콜백
-    onImageUpload?: (uploadedUrl: string) => void; // 이미지 업로드 콜백
+interface ImageUploaderProps {
+    onAnalysisComplete: (result: number[]) => void; // 분석 결과를 부모 컴포넌트로 전달
+    onImageUploadToFirestore: (url: string) => void; // 업로드된 이미지 URL을 Firestore 저장을 위해 전달
 }
 
-const ImageUploadComponent: React.FC<ImageUploadComponentProps> = ({ onAnalyze, onImageUpload }) => {
+const ImageUploaderComponent: React.FC<ImageUploaderProps> = ({ onAnalysisComplete, onImageUploadToFirestore }) => {
     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     // Cloudinary 스크립트 로드
-    useEffect(() => {
+    React.useEffect(() => {
         if (window.cloudinary) {
             setIsScriptLoaded(true);
             return;
@@ -29,13 +32,8 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = ({ onAnalyze, 
         };
     }, []);
 
-    // Cloudinary 업로드 처리
+    // Cloudinary 업로드 및 서버로 전송
     const handleUpload = () => {
-        if (!isScriptLoaded) {
-            alert("Cloudinary 스크립트가 아직 로드되지 않았습니다.");
-            return;
-        }
-
         const widget = window.cloudinary.createUploadWidget(
             {
                 cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!,
@@ -43,14 +41,42 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = ({ onAnalyze, 
             },
             async (error: any, result: any) => {
                 if (error) {
-                    console.error("Cloudinary 업로드 중 오류 발생:", error);
+                    console.error("Cloudinary 업로드 오류:", error);
                     return;
                 }
 
                 if (result.event === "success") {
                     const uploadedUrl = result.info.secure_url;
-                    if (onImageUpload) onImageUpload(uploadedUrl);
-                    onAnalyze(uploadedUrl); // 분석 요청
+                    const fileBlob = await fetch(uploadedUrl).then((res) => res.blob());
+
+                    onImageUploadToFirestore(uploadedUrl);
+
+                    const formData = new FormData();
+                    formData.append("image", fileBlob);
+                    formData.append("height", height);
+                    formData.append("bmi", bmi);
+
+                    console.log("FormData 확인:");
+                    formData.forEach((value, key) => {
+                        console.log(`${key}: ${value}`);
+                    });
+
+                    try {
+                        const response = await fetch("/predict", {
+                            method: "POST",
+                            body: formData,
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            onAnalysisComplete(data.result);
+                        } else {
+                            const errorResponse = await response.json();
+                            console.error("서버 응답 오류:", errorResponse);
+                        }
+                    } catch (uploadError) {
+                        console.error("서버 전송 중 오류 발생:", uploadError);
+                    }
                 }
             }
         );
@@ -58,16 +84,20 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = ({ onAnalyze, 
         widget.open();
     };
 
+
     return (
-        <div className="w-full flex flex-col items-center">
+        <div className="flex flex-col items-center">
             <button
                 onClick={handleUpload}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={isUploading}
+                className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 ${
+                    isUploading ? "opacity-50" : ""
+                }`}
             >
-                이미지 업로드 및 분석
+                {isUploading ? "업로드 중..." : "이미지 업로드 및 분석"}
             </button>
         </div>
     );
 };
 
-export default ImageUploadComponent;
+export default ImageUploaderComponent;
