@@ -156,9 +156,9 @@ const MyPage: React.FC = () => {
         description?: string,
         isDisabled?: boolean // 비활성화 여부 추가
     ) => (
-        <div className="flex items-center py-3  ">
-            <div className="w-1/3 text-gray-700 font-medium">{label}</div>
-            <div className="w-2/3">
+        <div className="flex items-center py-3  bg-gray-100">
+            <div className="w-1/3 text-gray-700 bg-gray-100 font-medium">{label}</div>
+            <div className="w-2/3 bg-gray-100">
                 {isDisabled ? (
                     <p className="text-gray-500">{formData[field] || "N/A"}</p> // 비활성화 필드는 텍스트로 표시
                 ) : (
@@ -173,7 +173,7 @@ const MyPage: React.FC = () => {
                                     : e.target.value
                             )
                         }
-                        className="w-full px-3 py-2 border border-gray-400 text-black rounded-md focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border bg-gray-100  text-black rounded-md focus:ring-2 focus:ring-blue-500"
                     />
                 )}
                 {description && <p className="text-sm text-red-500 mt-1">{description}</p>}
@@ -185,12 +185,12 @@ const MyPage: React.FC = () => {
 
     return (
         <DashboardLayout>
-            <div className="mt-10 max-w-3xl mx-auto p-8  ">
+            <div className="mt-10 max-w-3xl mx-auto p-8  bg-gray-100">
                 {!isVerified ? (
                     <>
                         <h1 className="text-3xl font-bold text-black mb-10">비밀번호 확인</h1>
                         <hr className="max-w-3xl mb-10 text-black" />
-                        <p className="text-2xl text-gray-500 mb-6">
+                        <p className="text-xl text-gray-500 mb-6">
                             나의 정보를 확인하려면 현재 비밀번호를 입력하세요.
                         </p>
                         <input

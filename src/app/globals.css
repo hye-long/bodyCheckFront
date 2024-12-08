@@ -17,7 +17,7 @@ body {
 
 html {
   scroll-behavior: smooth; /* 부드러운 스크롤 */
-  height:120%;
+  height:100%;
 }
 
 @layer utilities {
