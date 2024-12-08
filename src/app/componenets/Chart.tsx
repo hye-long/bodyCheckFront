@@ -31,7 +31,7 @@ interface WorkoutSet {
 interface WorkoutSession {
     workout_type: string;
     sets: WorkoutSet[];
-    date: string; // ISO string
+    date: string;
 }
 
 interface ChartProps {
@@ -41,27 +41,25 @@ interface ChartProps {
 }
 
 const Chart: React.FC<ChartProps> = ({ workoutData, targetReps, onUpdateTargetReps }) => {
-    // Aggregate workout reps by date
     const dateAggregatedData = workoutData.reduce((acc, session) => {
-        const date = new Date(session.date).toLocaleDateString('ko-KR'); // Format date
+        const date = new Date(session.date).toLocaleDateString('ko-KR');
         const reps = session.sets.reduce((sum, set) => sum + set.reps, 0);
 
         if (acc[date]) {
-            acc[date] += reps; // Add reps for the same date
+            acc[date] += reps;
         } else {
-            acc[date] = reps; // Initialize reps for a new date
+            acc[date] = reps;
         }
 
         return acc;
     }, {} as { [date: string]: number });
 
-    // Line chart data configuration
     const lineChartData = {
-        labels: Object.keys(dateAggregatedData), // X-axis labels (dates)
+        labels: Object.keys(dateAggregatedData),
         datasets: [
             {
                 label: '날짜별 총 반복 횟수',
-                data: Object.values(dateAggregatedData), // Y-axis values (total reps)
+                data: Object.values(dateAggregatedData),
                 borderColor: '#4F46E5',
                 backgroundColor: '#4F46E5',
                 tension: 0.1,
@@ -133,7 +131,7 @@ const Chart: React.FC<ChartProps> = ({ workoutData, targetReps, onUpdateTargetRe
                 );
             })}
 
-            {/* Line chart */}
+            {/* 꺾은선 차트*/}
             <div className="bg-white p-6 rounded-lg shadow">
                 <h3 className="text-lg font-bold mb-4 text-gray-700">날짜별 운동 기록</h3>
                 <div className="w-full h-[400px]">
@@ -149,7 +147,7 @@ const Chart: React.FC<ChartProps> = ({ workoutData, targetReps, onUpdateTargetRe
                                 x: { grid: { display: false } },
                                 y: {
                                     beginAtZero: true,
-                                    max: 150, // Maximum Y-axis value
+                                    max: 100,
                                 },
                             },
                         }}

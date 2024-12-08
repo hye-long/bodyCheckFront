@@ -45,3 +45,18 @@ body {
     color: #000000; /* 검정 텍스트 */
   }
 }
+
+/*이미지 슬라이더 추가*/
+@keyframes slide-images {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-slide-images {
+  animation: slide-images 10s linear infinite;
+}
+

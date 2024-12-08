@@ -17,10 +17,10 @@ export default function TogetherSection() {
                     isTextVisible ? "opacity-100 translate-y-0" : ""
                 }`}
             >
-                <h2 className="text-[3rem] font-bold leading-[1.2] border-l-[5px] border-black pl-4 mb-5">
+                <h2 className="text-[3rem] font-bold leading-[1.2] border-l-[5px] border-black text-black pl-4 mb-5">
                     TOGETHER <br /> JOIN
                 </h2>
-                <p className="text-[30px] leading-[1.6] text-gray-800">
+                <p className="text-[30px] leading-[1.6] text-black">
                     공유하기 기능을 통해 친구들과 함께 나의 기록을 자랑하고
                     나의 상대적 위치를 확인할 수 있어요.
                 </p>

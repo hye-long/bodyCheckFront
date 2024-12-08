@@ -1,42 +1,53 @@
 'use client';
-import React, { useRef, useEffect } from "react";
-import { useObserver } from "../utils/useObserver";
+import React from "react";
 
 export default function GraphSection() {
-    const textRef = useRef(null);
-    const graphRef = useRef(null);
-    const { isVisible: isTextVisible } = useObserver({ target: textRef, option: { threshold: 0.3 } });
-    const { isVisible: isGraphVisible } = useObserver({ target: graphRef, option: { threshold: 0.5 } });
-
-    useEffect(() => {
-        console.log("Text visible:", isTextVisible);
-        console.log("Graph visible:", isGraphVisible);
-    }, [isTextVisible, isGraphVisible]);
-
     return (
-        <div className="flex flex-col items-center justify-center text-center h-[100vh] bg-black overflow-hidden">
-            <div
-                ref={textRef}
-                className={`mb-10 w-full flex flex-col items-center justify-center text-center transition-opacity duration-1000 ease-out transform ${
-                    isTextVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-                }`}
-            >
-                <h2 className="text-[60px] text-amber-50 font-bold mt-[100px]">한눈에 보는 그래프</h2>
-                <p className="text-amber-50 text-[30px] mt-10 leading-relaxed max-w-[450px]">
+        <div className="relative flex flex-col items-center justify-center text-center h-[100vh] bg-white overflow-hidden">
+            {/* 텍스트 섹션 */}
+            <div className="absolute top-[10%] z-20 text-center">
+                <h2 className="text-[60px] text-black font-bold">한눈에 보는 그래프</h2>
+                <p className="text-black text-[30px] mt-5 leading-relaxed max-w-[600px] mx-auto mb-10">
                     수치화된 통계 데이터로 몸의 변화를 보여드릴게요.
                 </p>
             </div>
-            <div
-                ref={graphRef}
-                className={`relative mt-10 w-full h-[90vh] flex px-0   transition-opacity duration-1000 ease-out transform ${
-                    isGraphVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-                }`}
-            >
+
+            {/*
+            이거 전체 컴퓨터 프레임인데 안넣어도 될 것 같아서 일다 뺌...
+            피드백 이후 다시 반영
+             <div className="relative z-10 w-[850px] h-[450px] mt-[50px]">
                 <img
-                    src="/images/computermockup.png"
+                    src="/images/macbookb.png"
                     alt="컴퓨터 프레임"
-                    className="w-full h-full object-contain px-0"
+                    className="absolute w-full h-full object-contain"
                 />
+              </div>
+             */}
+
+
+
+            {/* 사진 애니메이션 */}
+            <div className="absolute bottom-0 left-0 w-full h-[600px] overflow-hidden">
+                <div className="absolute flex items-center h-full w-[100%] animate-slide-images">
+                    {[
+                        "/images/graph1.png",
+                        "/images/graph2.png",
+                        "/images/graph3.png",
+                        "/images/graph4.png",
+                        "/images/image29.png",
+                    ].map((src, index) => (
+                        <div
+                            key={index}
+                            className="w-[1000px] h-full flex-shrink-0 flex items-center justify-center"
+                        >
+                            <img
+                                src={src}
+                                alt={`Graph ${index + 1}`}
+                                className="h-full w-auto object-cover"
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

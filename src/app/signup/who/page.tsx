@@ -2,7 +2,7 @@
 'use client'
 import { FC } from 'react';
 import Link from 'next/link';
-import Header from '../../componenets/header' // 경로 수정
+import Header from '../../componenets/Header' // 경로 수정
 import styles from './whoSignUp.module.css'; // CSS 모듈 불러오기
 
 const WhoSignUp: FC = () => {

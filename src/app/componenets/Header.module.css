@@ -18,11 +18,9 @@
     cursor: pointer;
 }
 
-.logo {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: black;
-    text-decoration: none;
+.LogoText:hover {
+    opacity: 0.8; /* 클릭 시 시각적 피드백 */
+    cursor: pointer; /* 클릭 가능 마우스 커서 */
 }
 
 .nav {

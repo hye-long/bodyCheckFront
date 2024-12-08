@@ -11,7 +11,7 @@ export default function RecordSection() {
     const { isVisible: isTextVisible } = useObserver({ target: textRef, option: { threshold: 0.3 } });
 
     return (
-        <div className="flex flex-row items-center justify-between h-[79vh] bg-gray-300 overflow-hidden">
+        <div className="flex flex-row items-center justify-between h-[79vh] bg-gray-400 overflow-hidden">
             {/* 이미지 섹션 */}
             <div
                 ref={imageRef}
@@ -30,14 +30,14 @@ export default function RecordSection() {
             {/* 텍스트 섹션 */}
             <div
                 ref={textRef}
-                className={`flex flex-col items-end justify-center pr-20 text-right w-[35%] transition-opacity duration-1000 ease-out transform ${
+                className={`flex-1 flex flex-col items-end justify-center pr-20 text-right w-[35%] transition-opacity duration-1000 ease-out transform ${
                     isTextVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
                 }`}
             >
-                <h2 className="text-6xl font-bold mb-4">
+                <h2 className="text-6xl text-black font-bold mb-4">
                     직접 기록해야 하는 번거로움은 낮췄습니다.
                 </h2>
-                <p className="text-3xl leading-relaxed whitespace-pre-line">
+                <p className="text-3xl text-black eading-relaxed whitespace-pre-line">
                     이제 내 움직임을
                     자동으로 측정하여
                     더 편리하게 운동 기록을 측정해보세요.

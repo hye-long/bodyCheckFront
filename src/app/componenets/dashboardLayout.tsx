@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Sidebar from "./sidebar";
-import Header from "./header";
-import styles from "./layout.module.css";
-import '../globals.css';
+import Sidebar from "@/app/componenets/sidebar";
+import Header from "./Header";
 import ProtectedRoute from "@/app/protectedRoute";
 
 interface DashboardLayoutProps {
@@ -15,26 +13,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-    const closeSidebar = () => setIsSidebarOpen(false);
 
     return (
-        <div className={styles.layoutContainer}>
-            <ProtectedRoute isRestricted={true}>
-                <Header
-                    toggleSidebar={toggleSidebar}
-                    isLoggedIn={true}
-                    onLogout={() => alert("로그아웃 되었습니다!")}
-                />
-                <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-                <main
-                    className={`${styles.mainContent} ${
-                        isSidebarOpen ? styles.shifted : ""
-                    }`}
-                >
-                    {children}
-                </main>
-            </ProtectedRoute>
-
-        </div>
+        <ProtectedRoute isRestricted={true}>
+            <div className="flex h-screen">
+                <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+                <div className="flex flex-col flex-1">
+                    <Header toggleSidebar={toggleSidebar} />
+                    <main className="flex-1 p-4">{children}</main>
+                </div>
+            </div>
+        </ProtectedRoute>
     );
 }
