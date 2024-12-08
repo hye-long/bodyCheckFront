@@ -10,6 +10,7 @@ import {
     isFormValid,
 } from "../utils/signingupUtils";
 import LogoText from "@/app/componenets/logoText";
+import BMICalculator from "@/app/componenets/BMICalculator";
 
 export default function Signup() {
     const router = useRouter();
@@ -235,6 +236,7 @@ export default function Signup() {
                 >
                     회원가입 완료
                 </button>
+                <BMICalculator />
             </form>
         </div>
     );

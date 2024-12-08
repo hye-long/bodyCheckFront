@@ -13,7 +13,7 @@ interface UserData {
     password?: string;
     confirmPassword?: string;
     address?: string;
-    phoneNumber?: string;
+    bmi?: number;
     [key: string]: string | number | undefined;
 }
 
@@ -34,6 +34,15 @@ const MyPage: React.FC = () => {
     const [passwordError, setPasswordError] = useState<string | undefined>("소문자와 숫자를 포함한 8자리 이상이어야 합니다.");
     const [confirmPasswordError, setConfirmPasswordError] = useState<string | undefined>("비밀번호를 한 번 더 입력해주세요.");
 
+    // BMI 계산
+    const calculateBMI = (height: number | undefined, weight: number | undefined): number | null => {
+        if (height && weight) {
+            const heightInMeters = height / 100;
+            return parseFloat((weight / (heightInMeters ** 2)).toFixed(2));
+        }
+        return null;
+    };
+
     // userId가 변경되면 사용자 데이터 가져오기
     useEffect(() => {
         if (userId) {
@@ -52,13 +61,23 @@ const MyPage: React.FC = () => {
                 address: userData.address || "",
                 password: "",
                 confirmPassword: "",
+                bmi: userData.bmi || undefined,
             });
         }
     }, [userData]);
 
     // 입력 필드 값 변경 핸들러
     const handleChange = (field: keyof UserData, value: string | number) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
+        setFormData((prev) => {
+            const updatedData = { ...prev, [field]: value };
+
+            // 키 또는 몸무게가 변경되면 BMI 계산
+            if (field === "height" || field === "weight") {
+                updatedData.bmi = calculateBMI(updatedData.height, updatedData.weight) as number;
+            }
+
+            return updatedData;
+        });
 
         if (field === "password") {
             if (typeof value === "string" && value.length >= 8 && /\d/.test(value) && /[a-z]/.test(value)) {
@@ -89,9 +108,18 @@ const MyPage: React.FC = () => {
     // 저장 버튼 클릭 핸들러
     const handleSave = async () => {
         try {
-            if (passwordError || confirmPasswordError) {
-                alert(" 비밀번호 확인을 완료해주세요.");
-                return;
+            // 비밀번호 필드를 처리하지 않는 경우
+            if (!formData.password && !formData.confirmPassword) {
+                delete formData.password;
+                delete formData.confirmPassword;
+            }
+
+            // 비밀번호와 비밀번호 확인이 입력된 경우에만 처리
+            if (formData.password || formData.confirmPassword) {
+                if (formData.password !== formData.confirmPassword) {
+                    alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+                    return;
+                }
             }
 
             // 수정된 필드만 업데이트
@@ -128,7 +156,7 @@ const MyPage: React.FC = () => {
         description?: string,
         isDisabled?: boolean // 비활성화 여부 추가
     ) => (
-        <div className="flex bg-white items-center py-3 border-b border-gray-300">
+        <div className="flex items-center py-3  ">
             <div className="w-1/3 text-gray-700 font-medium">{label}</div>
             <div className="w-2/3">
                 {isDisabled ? (
@@ -157,7 +185,7 @@ const MyPage: React.FC = () => {
 
     return (
         <DashboardLayout>
-            <div className="mt-10 max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-lg">
+            <div className="mt-10 max-w-3xl mx-auto p-8  ">
                 {!isVerified ? (
                     <>
                         <h1 className="text-3xl font-bold text-black mb-10">비밀번호 확인</h1>
@@ -205,6 +233,8 @@ const MyPage: React.FC = () => {
                             "password",
                             confirmPasswordError,
                         )}
+
+
 
                         <button
                             onClick={handleSave}
