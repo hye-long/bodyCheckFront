@@ -1,9 +1,9 @@
 // src/app/signup/personal/page.tsx
+/*
 "use client";
 
 import React from "react";
 import useSignupStore from "@/store/useSignupStore";
-import styles from "../Signup.module.css";
 import { useRouter } from "next/navigation";
 import {
     handleInputChange,
@@ -126,3 +126,6 @@ export default function Signup() {
         </div>
     );
 }
+
+
+ */

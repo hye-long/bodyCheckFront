@@ -3,31 +3,27 @@
 import React, { FC, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { firestore } from '../firestore/firebase'; // Firebase 초기화 파일
-import useAuthStore from '@/store/useAuthStore'; // Zustand 상태 관리
-import styles from './login.module.css'; // 스타일 파일
+import { firestore } from '../firestore/firebase';
+import useAuthStore from '@/store/useAuthStore';
 import Link from 'next/link';
 import LogoText from '@/app/componenets/logoText';
-import useSyncAuthState from "../../store/useSyncAuthState"; // Firebase 상태 동기화 훅
-
+import useSyncAuthState from "../../store/useSyncAuthState";
 
 const Login: FC = () => {
-    useSyncAuthState(); // Firebase와 Zustand 상태 동기화
-    const { login } = useAuthStore(); // Zustand의 로그인 상태 함수
-    const [id, setId] = useState(''); // 사용자 ID
-    const [password, setPassword] = useState(''); // 사용자 비밀번호
-    const [error, setError] = useState<string | null>(null); // 에러 메시지
-    const [isLoading, setIsLoading] = useState(false); // 로딩 상태
+    useSyncAuthState();
+    const { login } = useAuthStore();
+    const [id, setId] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
-    // 로그인 핸들러
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
-        setError(null); // 에러 초기화
-        setIsLoading(true); // 로딩 상태 시작
+        setError(null);
+        setIsLoading(true);
 
         try {
-            // Firestore에서 사용자 확인
             const usersRef = collection(firestore, 'users');
             const q = query(usersRef, where('id', '==', id));
             const querySnapshot = await getDocs(q);
@@ -35,13 +31,8 @@ const Login: FC = () => {
             if (!querySnapshot.empty) {
                 const user = querySnapshot.docs[0].data();
                 if (user && user.password === password) {
-                    // Zustand 로그인 상태 업데이트
                     login(id);
-
-                    // 대시보드 페이지로 이동
                     router.push('/dashboard');
-                    console.log("로그인 성공, 대시보드로이동");
-                    console.log(router);
                 } else {
                     setError('아이디 또는 비밀번호가 잘못되었습니다.');
                 }
@@ -52,20 +43,19 @@ const Login: FC = () => {
             console.error('로그인 중 오류 발생:', err);
             setError('로그인 중 문제가 발생했습니다. 다시 시도해주세요.');
         } finally {
-            setIsLoading(false); // 로딩 상태 종료
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className={styles.container}>
+        <div className="bg-white min-h-screen flex flex-col items-center justify-center text-white">
             <LogoText text="BODY : CHECK" />
-            <h2 className={styles.subtitle}>로그인</h2>
-            <hr className={styles.line} />
+            <h2 className="text-2xl font-medium text-center text-black mt-4">로그인</h2>
+            <hr className="w-full border-t border-gray-400 my-6 max-w-lg" />
 
-            <form className={styles.form} onSubmit={handleLogin}>
-                {/* 사용자 ID 입력 */}
-                <div className={styles.field}>
-                    <label className={styles.inputlabel}>아이디</label>
+            <form className="w-full max-w-lg flex flex-col gap-4" onSubmit={handleLogin}>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">아이디</label>
                     <input
                         type="text"
                         value={id}
@@ -74,13 +64,12 @@ const Login: FC = () => {
                             setError(null);
                         }}
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                     />
                 </div>
 
-                {/* 사용자 비밀번호 입력 */}
-                <div className={styles.field}>
-                    <label className={styles.inputlabel}>비밀번호</label>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">비밀번호</label>
                     <input
                         type="password"
                         value={password}
@@ -90,44 +79,49 @@ const Login: FC = () => {
                         }}
                         required
                         autoComplete="current-password"
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                     />
                 </div>
 
-                <hr className={styles.line} />
+                <hr className="w-full border-t border-gray-400 my-6" />
 
-                {/* 로그인 버튼 */}
-                <button type="submit" className={styles.loginButton} disabled={isLoading}>
+                <button
+                    type="submit"
+                    className={`w-full py-3 text-white rounded-md ${
+                        isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-600'
+                    }`}
+                    disabled={isLoading}
+                >
                     {isLoading ? '로그인 중...' : '로그인'}
                 </button>
 
-                {/* 에러 메시지 */}
-                {error && <p className={styles.error}>{error}</p>}
+                {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-                {/* 이메일로 로그인 */}
                 <Link href="/notfound">
-                    <button type="button" className={styles.emailButton}>
+                    <button
+                        type="button"
+                        className="w-full py-3 mt-4 text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-400"
+                    >
                         이메일로 로그인
                     </button>
                 </Link>
             </form>
 
-            <hr />
+            <hr className="w-full border-t border-black my-6 max-w-lg" />
 
-            {/* 계정 찾기 및 가입 */}
-            <div className={styles.findAccount}>
+            <div className="w-full max-w-lg flex justify-between items-center">
                 <Link href="/signup">
-                    <p className={styles.firstMeet}>서비스가 처음이신가요?</p>
+                    <p className="text-sm text-black hover:underline">회원가입</p>
                 </Link>
-                <section className={styles.rightLinks}>
+                <div className="flex items-center space-x-2">
                     <Link href="/findAccount">
-                        <p className={styles.firstMeet}>아이디 찾기</p>
+                        <p className="text-sm text-black hover:underline">아이디 찾기</p>
                     </Link>
-                    <span className={styles.firstMeet}>|</span>
+                    <span className="text-sm text-gray-500">|</span>
                     <Link href="/FindPassword">
-                        <p className={styles.firstMeet}>비밀번호 찾기</p>
+                        <p className="text-sm text-black hover:underline">비밀번호 찾기</p>
                     </Link>
-                </section>
+                </div>
             </div>
         </div>
     );

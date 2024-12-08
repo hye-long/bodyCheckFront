@@ -2,7 +2,6 @@
 
 import React from "react";
 import useSignupStore from "@/store/useSignupStore";
-import styles from "./Signup.module.css";
 import { useRouter } from "next/navigation";
 import {
     handleInputChange,
@@ -32,44 +31,44 @@ export default function Signup() {
     } = useSignupStore();
 
     return (
-        <div className={styles.container}>
-            <LogoText text={"BODY : CHECK"} />
-            <h2 className={styles.subtitle}>회원가입</h2>
-            <hr className={styles.line} />
+        <div className="bg-white min-h-screen flex flex-col items-center justify-center text-black">
+            <LogoText text="BODY : CHECK" />
+            <h2 className="text-2xl font-medium text-center text-black mt-4">회원가입</h2>
+            <hr className="w-full border-t border-gray-400 my-6 max-w-lg" />
 
             <form
-                className={styles.form}
+                className="w-full max-w-lg flex flex-col gap-4"
                 onSubmit={(e) => handleSignup(e, router)}
             >
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*아이디</label>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*아이디</label>
                     <input
                         type="text"
                         value={id}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleInputChange("id", e.target.value)
-                        }
+                        onChange={(e) => handleInputChange("id", e.target.value)}
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                         placeholder="아이디를 입력하세요"
                     />
                     <button
                         type="button"
                         onClick={handleIdCheck}
-                        className={`${styles.button} ${
-                            isIdUnique ? styles.disabled : ""
+                        className={`mt-2 px-4 py-2 text-white rounded-md ${
+                            isIdUnique
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-700 hover:bg-blue-600"
                         }`}
                         disabled={isIdUnique === true}
                     >
                         중복 확인
                     </button>
                     {isIdUnique === true && (
-                        <p className={styles.verified}>아이디 확인 완료!</p>
+                        <p className="text-green-500 text-sm mt-2">아이디 확인 완료!</p>
                     )}
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*비밀번호</label>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*비밀번호</label>
                     <input
                         type="password"
                         value={password}
@@ -77,16 +76,16 @@ export default function Signup() {
                             handleInputChange("password", e.target.value)
                         }
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                         placeholder="비밀번호를 입력하세요"
                     />
                     {passwordError && (
-                        <p className={styles.error}>{passwordError}</p>
+                        <p className="text-red-500 text-sm mt-2">{passwordError}</p>
                     )}
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*비밀번호 확인</label>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*비밀번호 확인</label>
                     <input
                         type="password"
                         value={confirmPassword}
@@ -94,46 +93,47 @@ export default function Signup() {
                             handleInputChange("confirmPassword", e.target.value)
                         }
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                         placeholder="비밀번호 확인"
                     />
                     {confirmPasswordError && (
-                        <p className={styles.error}>{confirmPasswordError}</p>
+                        <p className="text-red-500 text-sm mt-2">{confirmPasswordError}</p>
                     )}
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*이름</label>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*이름</label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => handleInputChange("name", e.target.value)}
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                     />
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*회원유형</label>
-                    <div className={styles.genderButtons}>
+                {/* 회원유형 */}
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*회원유형</label>
+                    <div className="flex gap-4">
                         <button
                             type="button"
-                            onClick={() =>
-                                handleInputChange("types", "개인회원")
-                            }
-                            className={`${styles.genderButton} ${
-                                types === "개인회원" ? styles.selected : ""
+                            onClick={() => handleInputChange("types", "개인회원")}
+                            className={`px-6 py-2 border rounded-md ${
+                                types === "개인회원"
+                                    ? "bg-blue-700 text-white"
+                                    : "bg-white text-black border-black"
                             }`}
                         >
                             개인회원
                         </button>
                         <button
                             type="button"
-                            onClick={() =>
-                                handleInputChange("types", "기업회원")
-                            }
-                            className={`${styles.genderButton} ${
-                                types === "기업회원" ? styles.selected : ""
+                            onClick={() => handleInputChange("types", "기업회원")}
+                            className={`px-6 py-2 border rounded-md ${
+                                types === "기업회원"
+                                    ? "bg-blue-700 text-white"
+                                    : "bg-white text-black border-black"
                             }`}
                         >
                             기업회원
@@ -141,14 +141,17 @@ export default function Signup() {
                     </div>
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*성별</label>
-                    <div className={styles.genderButtons}>
+                {/* 성별 */}
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*성별</label>
+                    <div className="flex gap-4">
                         <button
                             type="button"
                             onClick={() => handleInputChange("gender", "남")}
-                            className={`${styles.genderButton} ${
-                                gender === "남" ? styles.selected : ""
+                            className={`px-6 py-2 border rounded-md ${
+                                gender === "남"
+                                    ? "bg-blue-700 text-white"
+                                    : "bg-white text-black border-black"
                             }`}
                         >
                             남
@@ -156,8 +159,10 @@ export default function Signup() {
                         <button
                             type="button"
                             onClick={() => handleInputChange("gender", "여")}
-                            className={`${styles.genderButton} ${
-                                gender === "여" ? styles.selected : ""
+                            className={`px-6 py-2 border rounded-md ${
+                                gender === "여"
+                                    ? "bg-blue-700 text-white"
+                                    : "bg-white text-black border-black"
                             }`}
                         >
                             여
@@ -165,8 +170,9 @@ export default function Signup() {
                     </div>
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*나이</label>
+                {/* 나이, 키, 몸무게, 주소 */}
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*나이</label>
                     <input
                         type="number"
                         value={age}
@@ -174,12 +180,12 @@ export default function Signup() {
                             handleInputChange("age", Number(e.target.value))
                         }
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                     />
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*키</label>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*키</label>
                     <input
                         type="number"
                         value={height}
@@ -187,12 +193,12 @@ export default function Signup() {
                             handleInputChange("height", Number(e.target.value))
                         }
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                     />
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*몸무게</label>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*몸무게</label>
                     <input
                         type="number"
                         value={weight}
@@ -200,12 +206,12 @@ export default function Signup() {
                             handleInputChange("weight", Number(e.target.value))
                         }
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                     />
                 </div>
 
-                <div className={styles.field}>
-                    <label className={styles.labelText}>*주소</label>
+                <div className="flex flex-col">
+                    <label className="mb-2 text-black">*주소</label>
                     <input
                         type="text"
                         value={address}
@@ -213,14 +219,17 @@ export default function Signup() {
                             handleInputChange("address", e.target.value)
                         }
                         required
-                        className={styles.input}
+                        className="px-4 py-2 border border-black bg-white rounded-md text-black focus:outline-none focus:ring focus:ring-gray-500"
                     />
                 </div>
 
+                {/* 회원가입 버튼 */}
                 <button
                     type="submit"
-                    className={`${styles.submitButton} ${
-                        isSignupComplete ? styles.active : styles.button
+                    className={`w-full py-3 mt-6 text-white rounded-md ${
+                        isFormValid()
+                            ? "bg-blue-700 hover:bg-blue-600"
+                            : "bg-gray-400 cursor-not-allowed"
                     }`}
                     disabled={!isFormValid()}
                 >
