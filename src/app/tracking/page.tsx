@@ -5,7 +5,8 @@ import DashboardLayout from "@/app/componenets/dashboardLayout";
 
 export default function RecordingExercise() {
     const handleRedirect = () => {
-        window.location.href = "http://202.30.29.168:9888"; //
+        // 서버 연결 URL을 새 탭에서 열기
+        window.open("http://202.30.29.168:9888", "_blank");
     };
 
     return (
@@ -29,7 +30,7 @@ export default function RecordingExercise() {
                 </div>
 
                 {/* 버튼과 텍스트 영역 (오른쪽) */}
-                <div className="flex-1 text-center mt-10 ">
+                <div className="flex-1 text-center mt-10">
                     {/* 가이드 영역 */}
                     <div className="grid grid-cols-2 gap-8 mt-10 mb-10">
                         {/* 각 단계 */}
