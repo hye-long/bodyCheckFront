@@ -25,113 +25,109 @@ ChartJS.register(
 
 interface WorkoutSet {
     reps: number;
-    weight: string;
 }
 
 interface WorkoutSession {
     workout_type: string;
     sets: WorkoutSet[];
     date: string;
+    color:string;
 }
 
 interface ChartProps {
     workoutData: WorkoutSession[];
     targetReps: { [key: string]: number };
     onUpdateTargetReps: (workoutType: string, newTarget: number) => void;
+    lineChartData: any; // 꺾은선 차트 데이터
 }
 
-const Chart: React.FC<ChartProps> = ({ workoutData, targetReps, onUpdateTargetReps }) => {
-    const dateAggregatedData = workoutData.reduce((acc, session) => {
-        const date = new Date(session.date).toLocaleDateString('ko-KR');
-        const reps = session.sets.reduce((sum, set) => sum + set.reps, 0);
-
-        if (acc[date]) {
-            acc[date] += reps;
-        } else {
-            acc[date] = reps;
-        }
-
-        return acc;
-    }, {} as { [date: string]: number });
-
-    const lineChartData = {
-        labels: Object.keys(dateAggregatedData),
+const Chart: React.FC<ChartProps> = ({
+                                         workoutData,
+                                         targetReps,
+                                         onUpdateTargetReps,
+                                         lineChartData,
+                                     }) => {
+    // 원형 차트 데이터 생성 함수
+    const createDoughnutData = (completed: number, target: number) => ({
+        labels: ['완료된 반복', '남은 반복'],
         datasets: [
             {
-                label: '날짜별 총 반복 횟수',
-                data: Object.values(dateAggregatedData),
-                borderColor: '#4F46E5',
-                backgroundColor: '#4F46E5',
-                tension: 0.1,
-                fill: false,
+                data: [completed, Math.max(0, target - completed)],
+                backgroundColor: ['#4F46E5', '#E5E7EB'],
+                borderWidth: 0,
             },
         ],
-    };
+    });
 
     return (
-        <div className="space-y-8">
-            {['벤치프레스', '스쿼트', '데드리프트'].map((workoutType) => {
-                const session = workoutData.find((data) => data.workout_type === workoutType);
-                const totalReps = session
-                    ? session.sets.reduce((sum, set) => sum + set.reps, 0)
-                    : 0;
+        <div className="space-y-6 justify-between ">
+            {/* 원형 차트 */}
+            {['benchpress', 'squat', 'deadlift'].map((workoutType) => {
+                const session = workoutData.find(
+                    (data) => data.workout_type === workoutType
+                );
+                const sets = session?.sets || []; // 세트 데이터가 없으면 빈 배열
+
                 const target = targetReps[workoutType] || 10;
 
-                // 원형 차트
-                const doughnutData = {
-                    labels: ['완료된 반복', '남은 반복'],
-                    datasets: [
-                        {
-                            data: [totalReps, Math.max(0, target - totalReps)],
-                            backgroundColor: ['#4F46E5', '#E5E7EB'],
-                            borderWidth: 0,
-                        },
-                    ],
-                };
-
                 return (
-                    <div key={workoutType} className="bg-white p-2 rounded-lg shadow">
-                        <h3 className="text-lg font-bold mb-2 text-gray-700">{workoutType.toUpperCase()}</h3>
-                        <div className="flex items-center justify-between">
-                            {/* 원형 */}
-                            <div className="relative w-36 ml-20 h-40">
-                                <Doughnut
-                                    data={doughnutData}
-                                    options={{
-                                        cutout: '75%',
-                                        plugins: {
-                                            tooltip: { enabled: true },
-                                            legend: { display: false },
-                                        },
-                                    }}
-                                />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <p className="text-lg font-bold text-gray-700">{totalReps}</p>
-                                    <p className="text-sm text-gray-500">/ {target}</p>
-                                </div>
-                            </div>
+                    <div
+                        key={workoutType}
+                        className="bg-white p-4 rounded-lg shadow flex items-center space-x-12"
+                    >
+                        <h3 className="text-2lg font-bold text-gray-700 min-w-[120px]">
+                            {workoutType}
+                        </h3>
+                        <div className="flex items-center pl-[80px] gap-[80px] space-x-8 flex-grow">
+                            {/* 최대 3개의 세트를 표시 */}
+                            {Array.from({ length: 3 }).map((_, index) => {
+                                const reps = sets[index]?.reps || 0; // 해당 세트가 없으면 reps는 0
+                                return (
+                                    <div key={index} className="flex flex-col items-center">
+                                        <div className="relative w-28 h-28">
+                                            <Doughnut
+                                                data={createDoughnutData(reps, target)}
+                                                options={{
+                                                    cutout: '75%',
+                                                    plugins: {
+                                                        tooltip: { enabled: true },
+                                                        legend: { display: false },
+                                                    },
+                                                }}
+                                            />
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <p className="text-lg font-bold">{reps}</p>
+                                                <p className="text-sm text-gray-500">/ {target}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm mt-2">{index + 1}세트</p>
+                                    </div>
+                                );
+                            })}
+                        </div>
 
-                            {/*목표치 설정 */}
-                            <div className="flex mr-10 items-center">
-                                <input
-                                    type="number"
-                                    className="w-14 p-1 border rounded"
-                                    value={target}
-                                    onChange={(e) => onUpdateTargetReps(workoutType, parseInt(e.target.value, 10))}
-                                />
-                                <button
-                                    className="ml-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                    onClick={() => onUpdateTargetReps(workoutType, target)}
-                                >
-                                    저장
-                                </button>
-                            </div>
+                        {/* 목표치 설정 */}
+                        <div className="flex flex-col items-center">
+                            <input
+                                type="number"
+                                className="border rounded p-1 text-center w-16 mb-2"
+                                value={target}
+                                onChange={(e) =>
+                                    onUpdateTargetReps(workoutType, parseInt(e.target.value, 10))
+                                }
+                            />
+                            <button
+                                className="bg-blue-500 text-white rounded px-3 py-1 hover:bg-blue-600"
+                                onClick={() => onUpdateTargetReps(workoutType, target)}
+                            >
+                                저장
+                            </button>
                         </div>
                     </div>
                 );
             })}
 
-            {/* 꺾은선 차트*/}
+            {/* 꺾은선 차트 */}
             <div className="bg-white p-6 rounded-lg shadow">
                 <h3 className="text-lg font-bold mb-4 text-gray-700">날짜별 운동 기록</h3>
                 <div className="w-full h-[400px]">
@@ -141,13 +137,33 @@ const Chart: React.FC<ChartProps> = ({ workoutData, targetReps, onUpdateTargetRe
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: { position: 'top' },
+                                legend: {
+                                    display: true, // 범례 표시
+                                    position: 'top',
+                                },
                             },
                             scales: {
-                                x: { grid: { display: false } },
+                                x: {
+                                    type: 'category', // X축의 유형
+                                    title: {
+                                        display: true,
+                                        text: '날짜', // X축 제목
+                                    },
+                                    grid: {
+                                        display: true, // 그리드 라인 표시
+                                    },
+                                },
                                 y: {
-                                    beginAtZero: true,
-                                    max: 100,
+                                    beginAtZero: true, // Y축이 0부터 시작
+                                    max: 3,
+                                    min:0,
+                                    title: {
+                                        display: true,
+                                        text: '세트 수', // Y축 제목
+                                    },
+                                    grid: {
+                                        display: true, // 그리드 라인 표시
+                                    },
                                 },
                             },
                         }}

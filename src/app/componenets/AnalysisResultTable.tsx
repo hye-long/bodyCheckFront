@@ -17,9 +17,9 @@ const AnalysisResultTable = ({ analysisResult }: { analysisResult: number[] | nu
     }
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow mt-4 max-h-64 overflow-y-auto">
+        <div className="bg-white p-6 rounded-lg shadow mt-4 max-h-[800px] overflow-y-auto">
             <h3 className="text-lg font-bold mt-15 mb-4">예측 결과</h3>
-            <div className="overflow-y-auto "> {/* 높이와 스크롤 설정 */}
+            <div className="overflow-y-auto max-h-[500px]"> {/* 높이와 스크롤 설정 */}
                 <table className="table-auto w-full border-collapse border border-gray-300">
                     <thead>
                     <tr className="bg-gray-200">
