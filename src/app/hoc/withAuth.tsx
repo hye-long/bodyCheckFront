@@ -10,7 +10,7 @@ const withAuth = (WrappedComponent: React.FC) => {
 
         useEffect(() => {
             if (!isAuthenticated) {
-                router.push('/login'); // 인증되지 않으면 로그인 페이지로 이동
+                router.push('/Login'); // 인증되지 않으면 로그인 페이지로 이동
             }
         }, [isAuthenticated, router]);
 

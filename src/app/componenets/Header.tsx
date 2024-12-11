@@ -41,9 +41,9 @@ export default function Header({ toggleSidebar }: HeaderProps) {
                 {isAuthenticated ? (
                     <>
                         <Link href="/myPage" passHref>
-                            <a className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300">
+                            <p className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300">
                                 마이페이지
-                            </a>
+                            </p>
                         </Link>
                         <button
                             onClick={handleLogout}

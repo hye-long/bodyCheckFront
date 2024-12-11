@@ -83,7 +83,7 @@ export const useSignupHandlers = () => {
 
         // 추가 사용자 정보 저장 로직 작성
         setIsSignupComplete(true);
-        setTimeout(() => router.push('/login'), 2000); // 2초 후 로그인 페이지로 이동
+        setTimeout(() => router.push('/Login'), 2000); // 2초 후 로그인 페이지로 이동
     };
 
     return {
