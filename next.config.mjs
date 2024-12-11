@@ -2,6 +2,10 @@
 const nextConfig = {
     images: {
         domains: ['res.cloudinary.com'],
+        path: '/_next/public/images',
+        disableStaticImages: false,
+        loader: 'default',
+        loaderFile: '',
     },
     async redirects() {
         return [
