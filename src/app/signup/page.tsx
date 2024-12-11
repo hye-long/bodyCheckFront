@@ -8,7 +8,7 @@ import {
     handleIdCheck,
     handleSignup,
     isFormValid,
-} from "../utils/signingupUtils";
+} from "../utils/signupUtils";
 import LogoText from "@/app/componenets/logoText";
 import BMICalculator from "@/app/componenets/BMICalculator";
 

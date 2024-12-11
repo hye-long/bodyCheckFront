@@ -1,4 +1,3 @@
-// src/utils/signup/utils.ts
 
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { firestore } from "../firestore/firebase";
