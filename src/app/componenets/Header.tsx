@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { FaBars } from "react-icons/fa";
-import { useRouter } from "next/navigation";
 import useAuthStore from "../../store/useAuthStore";
 
 interface HeaderProps {
@@ -10,20 +10,10 @@ interface HeaderProps {
 }
 
 export default function Header({ toggleSidebar }: HeaderProps) {
-    const router = useRouter();
     const { isAuthenticated, logout } = useAuthStore();
 
     const handleLogout = () => {
         logout();
-        router.push("/Login");
-    };
-
-    const handleLogoClick = () => {
-        if (isAuthenticated) {
-            router.push("/dashboard"); // 로그인된 상태에서 /dashboard로 이동
-        } else {
-            router.push("/"); // 비로그인 상태에서 홈으로 이동
-        }
     };
 
     return (
@@ -39,24 +29,22 @@ export default function Header({ toggleSidebar }: HeaderProps) {
                 </button>
             )}
 
-            {/* 로고 (클릭 시 페이지 이동) */}
-            <p
-                className="text-[24px] font-sans hover:opacity-80 cursor-pointer"
-                onClick={handleLogoClick}
-            >
-                BODY:CHECK
-            </p>
+            {/* 로고 */}
+            <Link href={isAuthenticated ? "/dashboard" : "/"} passHref>
+                <p className="text-[24px] font-sans hover:opacity-80 cursor-pointer">
+                    BODY:CHECK
+                </p>
+            </Link>
 
             {/* 네비게이션 */}
             <nav className="flex gap-4">
                 {isAuthenticated ? (
                     <>
-                        <button
-                            onClick={() => router.push("/myPage")}
-                            className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300"
-                        >
-                            마이페이지
-                        </button>
+                        <Link href="/myPage" passHref>
+                            <a className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300">
+                                마이페이지
+                            </a>
+                        </Link>
                         <button
                             onClick={handleLogout}
                             className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300"
@@ -65,14 +53,11 @@ export default function Header({ toggleSidebar }: HeaderProps) {
                         </button>
                     </>
                 ) : (
-                    <>
-                        <button
-                            onClick={() => router.push("/Login")}
-                            className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300"
-                        >
+                    <Link href="/Login" passHref>
+                        <p className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300">
                             로그인
-                        </button>
-                    </>
+                        </p>
+                    </Link>
                 )}
             </nav>
         </header>
