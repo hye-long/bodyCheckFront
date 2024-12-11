@@ -1,24 +1,17 @@
-// src/middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
-export function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
+export async function middleware(req: Request) {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("user_session")?.value;
 
-    // 보호된 경로
-    const protectedPaths = ['/dashboard'];
-
-    // 요청 경로가 보호된 경로인지 확인
-    if (protectedPaths.some((path) => pathname.startsWith(path))) {
-        const isAuthenticated = request.cookies.get('isAuthenticated');
-
-        if (!isAuthenticated || isAuthenticated.value !== 'true') {
-            // 인증되지 않은 경우 로그인 페이지로 리디렉션
-            const loginUrl = new URL('/Login', request.url);
-            return NextResponse.redirect(loginUrl);
-        }
+    if (!session && req.url.includes("/dashboard")) {
+        return NextResponse.redirect(new URL("/Login", req.url));
     }
 
-    // 인증된 요청은 통과
     return NextResponse.next();
 }
+
+export const config = {
+    matcher: ["/dashboard/:path*"], // 인증이 필요한 경로
+};

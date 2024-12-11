@@ -1,39 +1,27 @@
-"use client";
-
-import React, {useEffect, useRef} from "react";
-import {useRouter} from "next/navigation";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import useAuthStore from "@/store/useAuthStore";
-import {auth} from "@/app/firestore/firebase"; // 수정: Firebase 초기화된 auth 객체 가져오기
-import {onAuthStateChanged} from "firebase/auth";
 
-interface ProtectedRouteProps {
-    children: React.ReactNode,
-    isRestricted?: boolean
-}
-
-export default function ProtectedRoute({children, isRestricted}: ProtectedRouteProps) {
+export default function ProtectedRoute({children, isRestricted}: { children: React.ReactNode, isRestricted?: boolean }) {
     const router = useRouter();
-    const {isAuthenticated, login, logout} = useAuthStore();
-    const isInitialized = useRef(false); // 중복 호출 방지용
+    const { isAuthenticated, login, logout } = useAuthStore();
 
     useEffect(() => {
-        if (isInitialized.current) return; // 이미 초기화된 경우 실행 방지
-        isInitialized.current = true;
-
+        const auth = getAuth();
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log("Firebase 사용자 인증됨:", user.uid);
-                login(user.uid); // Zustand 상태 업데이트
+                login(user.uid); // Zustand에 사용자 ID 저장
             } else {
-                console.log("Firebase 사용자 로그아웃됨");
-                logout(); // Zustand 상태 초기화
-                router.replace("/Login"); // 로그인 페이지로 리다이렉트
+                logout(); // 로그아웃 시 Zustand 초기화
+                router.push("/Login"); // 로그인 페이지로 리다이렉트
             }
         });
 
         return () => unsubscribe();
     }, [login, logout, router]);
 
+    // 인증 상태 확인 전에는 로딩 상태 표시
     if (!isAuthenticated) {
         return <div>로딩 중...</div>;
     }

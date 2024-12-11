@@ -11,17 +11,20 @@ export const getUserData = async (userId: string) => {
     try {
         const userDocRef = doc(firestore, "users", userId);
         const userSnapshot = await getDoc(userDocRef);
+
         if (userSnapshot.exists()) {
             return userSnapshot.data();
         } else {
-            console.log("정보없음!");
+            console.warn(`User with ID ${userId} does not exist.`);
             return null;
         }
     } catch (error) {
-        console.error("에러 표시", error);
+        // @ts-ignore
+        console.error(`Failed to fetch user data for ID ${userId}:`, error.message);
         throw error;
     }
 };
+
 
 /**
  * Firestore에서 아이디 중복 여부를 확인
@@ -65,16 +68,68 @@ export const checkEmailExists = async (email: string): Promise<boolean> => {
  * @param userId 유저의 고유 ID
  * @param data Firestore에 저장할 유저 데이터
  */
-export const addUserData = async (userId: string, data: any) => {
+export const addUserData = async (userId: string, data: Record<string, any>) => {
+    if (!userId) {
+        throw new Error("User ID가 제공되지 않았습니다.");
+    }
+    if (!data) {
+        throw new Error("저장할 데이터가 제공되지 않았습니다.");
+    }
+
     try {
-        await setDoc(doc(firestore, 'users', userId), data);
-        console.log("User added with ID:", userId);
+        const userDocRef = doc(firestore, "users", userId);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+            await updateDoc(userDocRef, data);
+            console.log("기존 유저 데이터 업데이트 완료:", userId);
+        } else {
+            await setDoc(userDocRef, data);
+            console.log("새 유저 데이터 추가 완료:", userId);
+        }
     } catch (error) {
-        console.error("Error adding document:", error);
+        // @ts-ignore
+        console.error(`Firestore에 데이터 저장 중 오류 발생 (UserID: ${userId}):`, error.message);
         throw error;
     }
 };
 
+
+export const kakaoLoginAddUserData = async (userId: string, nickname: string) => {
+    try {
+        const userDocRef = doc(firestore, "users", userId); // Firestore 문서 참조
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+            // 문서가 이미 존재하는 경우 업데이트
+            await updateDoc(userDocRef, {
+                name: nickname || "익명 사용자", // 닉네임 필드 업데이트
+            });
+            console.log("기존 유저 데이터 업데이트 완료:", userId);
+        } else {
+            // 문서가 없는 경우 새 데이터 추가
+            await setDoc(userDocRef, {
+                id: userId, // 카카오 ID
+                name: nickname || "익명 사용자", // 닉네임
+                address: "", // 기본값
+                age: null, // 기본값
+                gender: "", // 기본값
+                height: null, // 기본값
+                weight: null, // 기본값
+                phoneNumber: "", // 기본값
+                password: "", // 기본값
+                confirmPassword: "", // 기본값
+                bmi: null, // 기본값
+                types: "개인회원", // 기본값
+                createdAt: new Date(), // 생성 시간
+            });
+            console.log("새 카카오 유저 데이터 추가 완료:", userId);
+        }
+    } catch (error) {
+        console.error("Firestore 저장 중 오류 발생 (카카오 로그인):", error);
+        throw error;
+    }
+};
 /**
  * Firestore에 이미지 URL 저장
  * @param userId 유저의 고유 ID

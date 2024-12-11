@@ -13,11 +13,22 @@ export default function Header({ toggleSidebar }: HeaderProps) {
     const router = useRouter();
     const { isAuthenticated, logout } = useAuthStore();
 
-    const handleLogout = () => {
-        logout();
-        router.push("/Login");
+    const handleLogout = async () => {
+        try {
+            // 로컬 스토리지나 쿠키 등 클라이언트 리소스 초기화
+            localStorage.removeItem("user_session"); // 필요 시 로컬 스토리지에서 세션 제거
+
+            // Zustand 상태 초기화
+            logout();
+
+            // 로그인 페이지로 리다이렉션
+            router.push("/Login");
+        } catch (err) {
+            console.error("로그아웃 중 오류 발생:", err);
+        }
     };
 
+    // 로고클릭을 했을 때 처리함수
     const handleLogoClick = () => {
         if (isAuthenticated) {
             router.push("/dashboard"); // 로그인된 상태에서 /dashboard로 이동

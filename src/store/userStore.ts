@@ -1,20 +1,22 @@
+// @ts-ignore
+
 import { create } from "zustand";
 import { getUserData, updateUserData } from "@/app/firestore/firestore";
-import {FatCalculator} from "../app/componenets/FatCalculator";
+import { FatCalculator } from "../app/componenets/FatCalculator";
 
 export interface UserData {
     id: string;
     name: string;
     password: string;
     gender: string;
-    age: number;
+    age: number | null; // null 허용
     types: string;
     height: number;
     weight: number;
     address: string;
-    bmi: number;
-    fat: number; // 체지방률 추가
-    [key: string]: string | number;
+    bmi: number | null; // null 허용
+    fat: number | null; // 체지방률 추가, null 허용
+    [key: string]: string | number | null;
 }
 
 interface UserState {
@@ -35,12 +37,8 @@ export const useUserStore = create<UserState>((set, get) => ({
         set({ isLoading: true });
         try {
             const data = await getUserData(userId);
-            if (data) {
-                // @ts-ignore
-                set({ userData: data, isLoading: false });
-            } else {
-                set({ userData: null, isLoading: false });
-            }
+            // @ts-ignore
+            set({ userData: data || null, isLoading: false });
         } catch (error) {
             console.error("사용자 데이터 로드 오류:", error);
             set({ isLoading: false });
@@ -50,6 +48,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     // Firestore에서 사용자 데이터 업데이트
     updateUser: async (userId: string, updatedFields: Partial<UserData>) => {
         try {
+            // @ts-ignore
             await updateUserData(userId, updatedFields);
             set((state) => ({
                 userData: { ...state.userData, ...updatedFields } as UserData,
@@ -63,28 +62,27 @@ export const useUserStore = create<UserState>((set, get) => ({
     calculateAndUpdateMetrics: async () => {
         const { userData, updateUser } = get();
 
-        if (userData && userData.height > 0 && userData.weight > 0) {
-            // BMI 계산
-            const calculatedBMI = userData.weight / ((userData.height / 100) ** 2);
-            const roundedBMI = Number(calculatedBMI.toFixed(2));
+        if (userData && userData.height > 0 && userData.weight > 0 && userData.age !== null) {
+            const metrics = FatCalculator(userData.weight, userData.height, userData.gender, userData.age);
 
-            // 체지방률 계산
-            const bodyFatPercentage = FatCalculator(roundedBMI, userData.age, userData.gender, data.age);
-            // @ts-ignore
-            const roundedBodyFat = Number(bodyFatPercentage.toFixed(2));
+            if (metrics) {
+                const { bmi, fatPercentage } = metrics;
 
-            // Zustand 상태 업데이트 및 Firestore 동기화
-            try {
-                await updateUser(userData.id, {
-                    bmi: roundedBMI,
-                    fat: roundedBodyFat,
-                });
-                console.log("Firestore에 BMI 및 체지방률 업데이트 완료:", {
-                    bmi: roundedBMI,
-                    fat: roundedBodyFat,
-                });
-            } catch (error) {
-                console.error("BMI/체지방률 업데이트 중 오류 발생:", error);
+                try {
+                    // Zustand 상태 업데이트 및 Firestore 동기화
+                    await updateUser(userData.id, {
+                        bmi,
+                        fat: fatPercentage,
+                    });
+                    console.log("Firestore에 BMI 및 체지방률 업데이트 완료:", {
+                        bmi,
+                        fat: fatPercentage,
+                    });
+                } catch (error) {
+                    console.error("BMI/체지방률 업데이트 중 오류 발생:", error);
+                }
+            } else {
+                console.warn("FatCalculator에서 체지방률을 계산하지 못했습니다.");
             }
         } else {
             console.warn("사용자 데이터가 충분하지 않거나 잘못되었습니다.");
@@ -95,22 +93,24 @@ export const useUserStore = create<UserState>((set, get) => ({
     calculateFatOnly: async () => {
         const { userData, updateUser } = get();
 
-        if (userData && userData.bmi > 0) {
-            // 체지방률 계산
-            const bodyFatPercentage = FatCalculator(userData.bmi, userData.age, userData.gender, data.age);
-            // @ts-ignore
-            const roundedBodyFat = Number(bodyFatPercentage.toFixed(2));
+        if (userData && userData.bmi != null && userData.bmi > 0 && userData.age !== null) {
+            const metrics = FatCalculator(userData.weight, userData.height, userData.gender, userData.age);
 
-            // Zustand 상태 업데이트 및 Firestore 동기화
-            try {
-                await updateUser(userData.id, {
-                    fat: roundedBodyFat,
-                });
-                console.log("Firestore에 체지방률 업데이트 완료:", {
-                    fat: roundedBodyFat,
-                });
-            } catch (error) {
-                console.error("체지방률 업데이트 중 오류 발생:", error);
+            if (metrics) {
+                const { fatPercentage } = metrics;
+
+                try {
+                    await updateUser(userData.id, {
+                        fat: fatPercentage,
+                    });
+                    console.log("Firestore에 체지방률 업데이트 완료:", {
+                        fat: fatPercentage,
+                    });
+                } catch (error) {
+                    console.error("체지방률 업데이트 중 오류 발생:", error);
+                }
+            } else {
+                console.warn("FatCalculator에서 체지방률을 계산하지 못했습니다.");
             }
         } else {
             console.warn("BMI 데이터가 부족하거나 잘못되었습니다.");

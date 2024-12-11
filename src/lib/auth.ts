@@ -1,7 +1,6 @@
 // src/lib/auth.ts
 // 서버 사이드에서 인증 상태를 확인
-import { parseCookies } from './cookies';
-
+/*
 export const authenticateSSR = (cookieHeader: string | undefined) => {
     const cookies = parseCookies(cookieHeader);
 
@@ -11,3 +10,4 @@ export const authenticateSSR = (cookieHeader: string | undefined) => {
 
     return { isAuthenticated, userId };
 };
+*/

@@ -1,4 +1,14 @@
-export const FatCalculator = (weight: number, height: number, gender: string, age: number) => {
+export const FatCalculator = (
+    weight: number,
+    height: number,
+    gender: string,
+    age: number
+): {
+    bmi: number;
+    fatPercentage: number;
+    leanBodyMass: number;
+    fatMass: number;
+} | null => {
     if (!weight || !height) {
         console.warn("유효하지 않은 몸무게나 키 값");
         return null;
@@ -11,8 +21,8 @@ export const FatCalculator = (weight: number, height: number, gender: string, ag
     // 2. 체지방률 계산
     const fatPercentage =
         gender === "남"
-            ? (1.2 * roundedBMI) + (0.23 * 30) - 16.2 // age는 예시로 30 사용
-            : (1.2 * roundedBMI) + (0.23 * 30) - 5.4;
+            ? (1.2 * roundedBMI) + (0.23 * age) - 16.2
+            : (1.2 * roundedBMI) + (0.23 * age) - 5.4;
     const roundedFatPercentage = Number(fatPercentage.toFixed(2));
 
     // 3. 제지방량 계산
