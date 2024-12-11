@@ -69,7 +69,7 @@ export const useUserStore = create<UserState>((set, get) => ({
             const roundedBMI = Number(calculatedBMI.toFixed(2));
 
             // 체지방률 계산
-            const bodyFatPercentage = FatCalculator(roundedBMI, userData.age, userData.gender, data.age);
+            const bodyFatPercentage = FatCalculator(roundedBMI, userData.age, userData.gender, userData.age);
             // @ts-ignore
             const roundedBodyFat = Number(bodyFatPercentage.toFixed(2));
 
@@ -97,7 +97,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
         if (userData && userData.bmi > 0) {
             // 체지방률 계산
-            const bodyFatPercentage = FatCalculator(userData.bmi, userData.age, userData.gender, data.age);
+            const bodyFatPercentage = FatCalculator(userData.bmi, userData.age, userData.gender, userData.age);
             // @ts-ignore
             const roundedBodyFat = Number(bodyFatPercentage.toFixed(2));
 

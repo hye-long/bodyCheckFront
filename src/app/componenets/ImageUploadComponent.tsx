@@ -3,13 +3,16 @@
 "use client";
 
 import React, { useState } from "react";
+import {height} from "@fortawesome/free-solid-svg-icons/fa0";
 
 interface ImageUploaderProps {
     onAnalysisComplete: (result: number[]) => void; // 분석 결과를 부모 컴포넌트로 전달
     onImageUploadToFirestore: (url: string) => void; // 업로드된 이미지 URL을 Firestore 저장을 위해 전달
+    height: number; // 키 (cm)
+    bmi: number;    // BMI 값
 }
 
-const ImageUploaderComponent: React.FC<ImageUploaderProps> = ({ onAnalysisComplete, onImageUploadToFirestore }) => {
+const ImageUploaderComponent: React.FC<ImageUploaderProps> = ({ onAnalysisComplete, onImageUploadToFirestore,height,bmi }) => {
     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
@@ -53,7 +56,9 @@ const ImageUploaderComponent: React.FC<ImageUploaderProps> = ({ onAnalysisComple
 
                     const formData = new FormData();
                     formData.append("image", fileBlob);
+                    // @ts-ignore
                     formData.append("height", height);
+                    // @ts-ignore
                     formData.append("bmi", bmi);
 
                     console.log("FormData 확인:");

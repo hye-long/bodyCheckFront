@@ -142,12 +142,7 @@ const Changebody = () => {
         ],
     });
 
-    const chartOptions = {
-        responsive: true,
-        indexAxis: "y",
-        maintainAspectRatio: false,
-    };
-
+    // @ts-ignore
     return (
         <DashboardLayout>
             <div className="max-w-6xl mx-auto p-4">
@@ -160,7 +155,11 @@ const Changebody = () => {
                             <div className="h-48">
                                 <Bar
                                     data={generateChartData("BMI", calculatedData.bmi, "#CEDFF6")}
-                                    options={chartOptions}
+                                    options={{
+                                        responsive: true,
+                                        indexAxis: "y", // 막대 차트 방향
+                                        maintainAspectRatio: false,
+                                    }}
                                 />
                             </div>
                         </div>
@@ -170,7 +169,11 @@ const Changebody = () => {
                             <div className="h-48">
                                 <Bar
                                     data={generateChartData("체지방률", calculatedData.fatPercentage, "#CEDFF6")}
-                                    options={chartOptions}
+                                    options={{
+                                        responsive: true,
+                                        indexAxis: "y", // 막대 차트 방향
+                                        maintainAspectRatio: false,
+                                    }}
                                 />
                             </div>
                         </div>
@@ -180,7 +183,11 @@ const Changebody = () => {
                             <div className="h-48">
                                 <Bar
                                     data={generateChartData("체중", userData!.weight, "#CEDFF6")}
-                                    options={chartOptions}
+                                    options={{
+                                        responsive: true,
+                                        indexAxis: "y", // 막대 차트 방향
+                                        maintainAspectRatio: false,
+                                    }}
                                 />
                             </div>
                         </div>
