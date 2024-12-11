@@ -10,7 +10,7 @@ export async function GET() {
 
         if (!userId) {
             return NextResponse.json(
-                { error: "Unauthorized - No userId found" },
+                { error: "userId가 없어요" },
                 { status: 401 }
             );
         }
@@ -19,7 +19,7 @@ export async function GET() {
         const userDoc = await getDoc(doc(firestore, "users", userId));
         if (!userDoc.exists()) {
             return NextResponse.json(
-                { error: "User data not found in Firestore" },
+                { error: "firestore 에 데이터 없음" },
                 { status: 404 }
             );
         }
@@ -37,7 +37,7 @@ export async function GET() {
         // @ts-ignore
         // @ts-ignore
         return NextResponse.json(
-            { error: "Internal Server Error", details: error.message },
+            { error: "server에러..", details: error.message },
             { status: 500 }
         );
     }

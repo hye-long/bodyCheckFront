@@ -37,7 +37,7 @@ const Dashboard = () => {
     useEffect(() => {
         // userId가 없으면 로그인 페이지로 리다이렉트
         if (!userId) {
-            console.warn("로그인 상태가 아닙니다. /dashboard로 유지.");
+            console.warn("로그인 상태가 아닙니다.");
         }
     }, [userId]);
 
