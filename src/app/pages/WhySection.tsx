@@ -16,7 +16,7 @@ const WhySection: React.FC = () => {
             {/* 텍스트 섹션 */}
             <div className="flex-1 max-w-[50%]">
                 <h2 className="text-[6vw] font-bold mb-[2vh]">WHY?</h2>
-                <p className="text-[1.5vw] leading-[1.8]">
+                <p className="text-[2vw] leading-[1.8]">
                     운동의 중요성은 알지만 어떤 운동을 시작해야 할지 막막한 당신을 위해<br />
                     극한의 효율을 중시하는 현대인들에게 도움이 되고자 합니다.
                 </p>

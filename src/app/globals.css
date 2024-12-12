@@ -58,9 +58,6 @@ html {
 
 /*핸드폰 화면 */
 @media (max-width: 767px) {
-  .dashboard-header {
-    text-align: center; /* 작은 화면에서 제목을 중앙 정렬 */
-  }
 
   .grid-cols-12 {
     grid-template-columns: 1fr; /* 작은 화면에서 열을 하나로 축소 */

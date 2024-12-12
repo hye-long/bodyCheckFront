@@ -161,7 +161,7 @@ const Dashboard = () => {
 
     return (
         <DashboardLayout>
-            <div className="min-h-screen max-w-screen bg-gray-100 p-6 grid grid-cols-12 gap-6">
+            <div className="flex flex-wrap h-auto bg-gray-100">
                 {/* 사이드바 영역 */}
                 <aside className="col-span-3 bg-white rounded-lg shadow p-4 flex flex-col items-center">
                     <h2 className="text-lg font-semibold mb-4">운동 날짜 선택</h2>

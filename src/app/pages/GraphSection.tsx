@@ -5,9 +5,9 @@ export default function GraphSection() {
     return (
         <div className="relative flex flex-col items-center justify-center text-center h-[100vh] bg-white overflow-hidden">
             {/* 텍스트 섹션 */}
-            <div className="absolute top-[10%] z-20 text-center">
-                <h2 className="text-[60px] text-black font-bold">한눈에 보는 그래프</h2>
-                <p className="text-black text-[30px] mt-5 leading-relaxed max-w-[600px] mx-auto mb-10">
+            <div className="absolute top-[5vh] z-20 text-center">
+                <h2 className="text-[4vw] text-black font-bold">한눈에 보는 그래프</h2>
+                <p className="text-black text-[2.5vw] mt-5 leading-relaxed max-w-[60vw] mx-auto mb-3vh">
                     수치화된 통계 데이터로 몸의 변화를 보여드릴게요.
                 </p>
             </div>

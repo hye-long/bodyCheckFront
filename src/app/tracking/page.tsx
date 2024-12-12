@@ -12,7 +12,7 @@ export default function RecordingExercise() {
     return (
         <DashboardLayout>
             {/* 콘텐츠 */}
-            <div className="flex flex-col lg:flex-row mt-[100px] items-center gap-10">
+            <div className="flex flex-wrap h-auto bg-gray-100">
                 {/* 설명 영역 (왼쪽) */}
                 <div className="flex-1 p-12 lg:p-12">
                 <h1 className="text-[60px] font-bold lg:text-[60px]  mb-5">BODY : CHECK</h1>
