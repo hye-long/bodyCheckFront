@@ -32,6 +32,8 @@ const RecordExercise = () => {
     const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedImage, setSelectedImage] = useState<any | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 6;
 
     const selectedLabels = [
         "머리둘레",
@@ -102,6 +104,17 @@ const RecordExercise = () => {
             console.error("Firestore에서 이미지 데이터 로드 중 오류 발생:", error);
         }
     };
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= Math.ceil(uploadedImages.length / ITEMS_PER_PAGE)) {
+            setCurrentPage(page);
+        }
+    };
+
+    const currentImages = uploadedImages.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     const handleImageUpload = () => {
         if (!window.cloudinary) {
@@ -215,6 +228,7 @@ const RecordExercise = () => {
     return (
         <DashboardLayout>
             <div className="flex flex-wrap h-auto bg-gray-100">
+                {/* 왼쪽 업로드 섹션 */}
                 <div className="w-full lg:w-1/3 p-4">
                     <h2 className="text-lg lg:text-xl font-bold mb-2">사진 업로드</h2>
                     <p className="text-sm mb-4">사진 업로드 후 분석하기를 눌러주세요</p>
@@ -235,11 +249,6 @@ const RecordExercise = () => {
                             ))}
                         </div>
                     </div>
-                    {selectedImage && (
-                        <div className="mt-4 text-gray-600">
-                            <p>저장된 날짜: {selectedImage.timestamp}</p>
-                        </div>
-                    )}
                     <button
                         onClick={handleImageUpload}
                         className="w-full px-4 mt-10 py-2 bg-gray-100 border-2 text-black rounded-lg hover:bg-blue-700"
@@ -255,6 +264,7 @@ const RecordExercise = () => {
                     </button>
                 </div>
 
+                {/* 중간 분석 섹션 */}
                 <div className="w-full lg:w-1/3 p-4">
                     <h3 className="text-xl font-bold">BMI 차트</h3>
                     <SingleBarChart
@@ -273,11 +283,10 @@ const RecordExercise = () => {
                         stepSize={10}
                     />
                     <h3 className="text-2xl font-bold mt-8">분석결과</h3>
-                    <AnalysisResultTable analysisResult={analysisResult}/>
-
+                    <AnalysisResultTable analysisResult={analysisResult} />
                 </div>
 
-
+                {/* 오른쪽 저장된 사진 섹션 */}
                 <div className="w-full lg:w-1/3 p-4 overflow-y-scroll">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold">저장된 사진</h2>
@@ -289,10 +298,10 @@ const RecordExercise = () => {
                                     setIsSelectionMode(!isSelectionMode);
                                 }
                             }}
-                            className={`px-4 py-2 text-white rounded-lg ${
+                            className={`px-4 py-2 text-black ${
                                 selectedImageIds.length > 0
-                                    ? "bg-red-500 hover:bg-red-700"
-                                    : "bg-blue-500 hover:bg-blue-700"
+                                    ? "text-red-700 hover:text-red-700"
+                                    : "text-blue-500 "
                             }`}
                         >
                             {selectedImageIds.length > 0 ? "삭제" : "편집"}
@@ -300,7 +309,7 @@ const RecordExercise = () => {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {uploadedImages.map((img) => (
+                        {currentImages.map((img) => (
                             <div key={img.id} className="relative flex flex-col items-center">
                                 {isSelectionMode && (
                                     <input
@@ -319,6 +328,25 @@ const RecordExercise = () => {
                                 <p className="text-sm mt-2 text-gray-600">{img.timestamp}</p>
                             </div>
                         ))}
+                    </div>
+
+                    {/* 페이지네이션 */}
+                    <div className="flex justify-center mt-4">
+                        {Array.from({ length: Math.ceil(uploadedImages.length / ITEMS_PER_PAGE) }).map(
+                            (_, index) => (
+                                <button
+                                    key={index}
+                                    className={`px-4 py-2 mx-1  ${
+                                        currentPage === index + 1
+                                            ? "bg-black text-white"
+                                            : "text-black"
+                                    }`}
+                                    onClick={() => handlePageChange(index + 1)}
+                                >
+                                    {index + 1}
+                                </button>
+                            )
+                        )}
                     </div>
                 </div>
             </div>
