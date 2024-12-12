@@ -33,6 +33,7 @@ const RecordExercise = () => {
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedImage, setSelectedImage] = useState<any | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const ITEMS_PER_PAGE = 6;
 
     const selectedLabels = [
@@ -79,6 +80,16 @@ const RecordExercise = () => {
             }));
 
             setUploadedImages(images);
+
+
+            // 페이지 수 계산
+            const totalPageCount = Math.ceil(images.length / ITEMS_PER_PAGE);
+            setTotalPages(totalPageCount);
+
+            // 현재 페이지가 총 페이지 수를 초과하지 않도록 보정
+            if (currentPage > totalPageCount) {
+                setCurrentPage(totalPageCount);
+            }
         } catch (error) {
             console.error("Firestore에서 이미지 가져오기 실패:", error);
         }
@@ -91,12 +102,15 @@ const RecordExercise = () => {
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                setAnalysisResult(data.analysisResult);
+                setAnalysisResult(data.analysisResult || []);
                 setChartData([
-                    { name: "BMI", value: data.analysisResult[0] || 0 },
-                    { name: "체중", value: data.analysisResult[1] || 0 },
+                    { name: "BMI", value: data.analysisResult?.[0] || 0 },
+                    { name: "체중", value: data.analysisResult?.[1] || 0 },
                 ]);
-                setSelectedImage({ ...data, timestamp: data.timestamp.toDate().toLocaleString() });
+                setSelectedImage({
+                    ...data,
+                    timestamp: data.timestamp ? data.timestamp.toDate().toLocaleString() : "N/A",
+                });
             } else {
                 console.error("이미지 데이터를 찾을 수 없습니다.");
             }
@@ -104,6 +118,7 @@ const RecordExercise = () => {
             console.error("Firestore에서 이미지 데이터 로드 중 오류 발생:", error);
         }
     };
+
 
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= Math.ceil(uploadedImages.length / ITEMS_PER_PAGE)) {
@@ -115,6 +130,7 @@ const RecordExercise = () => {
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
+
 
     const handleImageUpload = () => {
         if (!window.cloudinary) {
@@ -168,6 +184,19 @@ const RecordExercise = () => {
             for (const id of selectedImageIds) {
                 await deleteDoc(doc(firestore, "images", id));
             }
+            // 삭제 후 이미지 배열 갱신
+            const updatedImages = uploadedImages.filter((img) => !selectedImageIds.includes(img.id));
+            setUploadedImages(updatedImages);
+
+            // 페이지 수 재계산
+            const newTotalPages = Math.ceil(updatedImages.length / ITEMS_PER_PAGE);
+            setTotalPages(newTotalPages);
+
+            // 현재 페이지가 총 페이지 수를 초과하지 않도록 보정
+            if (currentPage > newTotalPages) {
+                setCurrentPage(newTotalPages);
+            }
+
             setUploadedImages((prev) =>
                 prev.filter((img) => !selectedImageIds.includes(img.id))
             );
@@ -332,21 +361,20 @@ const RecordExercise = () => {
 
                     {/* 페이지네이션 */}
                     <div className="flex justify-center mt-4">
-                        {Array.from({ length: Math.ceil(uploadedImages.length / ITEMS_PER_PAGE) }).map(
-                            (_, index) => (
-                                <button
-                                    key={index}
-                                    className={`px-4 py-2 mx-1  ${
-                                        currentPage === index + 1
-                                            ? "bg-black text-white"
-                                            : "text-black"
-                                    }`}
-                                    onClick={() => handlePageChange(index + 1)}
-                                >
-                                    {index + 1}
-                                </button>
-                            )
-                        )}
+                        {/* 페이지 번호 버튼 생성 */}
+                        {Array.from({length: totalPages}).map((_, index) => (
+                            <button
+                                key={index}
+                                className={`px-4 py-2 mx-1  ${
+                                    currentPage === index + 1
+                                        ? "bg-black text-white"
+                                        : " text-black"
+                                }`}
+                                onClick={() => handlePageChange(index + 1)} // 페이지 이동 함수 호출
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </div>

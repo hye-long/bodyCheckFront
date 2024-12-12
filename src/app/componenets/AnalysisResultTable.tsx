@@ -1,5 +1,3 @@
-// 예측결과 렌더링
-
 import React from "react";
 
 // 예측 결과를 표 형태로 렌더링하는 컴포넌트
@@ -16,10 +14,12 @@ const AnalysisResultTable = ({ analysisResult }: { analysisResult: number[] | nu
         return <p>분석 결과가 없습니다.</p>;
     }
 
+    const maxLength = Math.min(bodyMeasurementLabels.length, analysisResult.length);
+
     return (
-        <div className="bg-white p-6 rounded-lg shadow mt-4 max-h-[800px] overflow-y-auto">
+        <div className="bg-white p-6 rounded-lg shadow mt-4 max-h-[800px] overflow-y-auto overflow-x-auto">
             <h3 className="text-lg font-bold mt-15 mb-4">예측 결과</h3>
-            <div className="overflow-y-auto max-h-[500px]"> {/* 높이와 스크롤 설정 */}
+            <div className="overflow-y-auto max-h-[500px]">
                 <table className="table-auto w-full border-collapse border border-gray-300">
                     <thead>
                     <tr className="bg-gray-200">
@@ -28,11 +28,13 @@ const AnalysisResultTable = ({ analysisResult }: { analysisResult: number[] | nu
                     </tr>
                     </thead>
                     <tbody>
-                    {bodyMeasurementLabels.map((label, index) => (
+                    {bodyMeasurementLabels.slice(0, maxLength).map((label, index) => (
                         <tr key={index}>
                             <td className="border border-gray-300 px-4 py-2">{label}</td>
                             <td className="border border-gray-300 px-4 py-2 text-right">
-                                {analysisResult[index]?.toFixed(2) || "N/A"}
+                                {typeof analysisResult[index] === "number"
+                                    ? analysisResult[index].toFixed(2)
+                                    : "N/A"}
                             </td>
                         </tr>
                     ))}
