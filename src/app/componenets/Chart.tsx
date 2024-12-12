@@ -73,12 +73,12 @@ const Chart: React.FC<ChartProps> = ({
                 return (
                     <div
                         key={workoutType}
-                        className="bg-white p-4 rounded-lg shadow flex items-center space-x-12"
+                        className="bg-white p-4 rounded-lg shadow flex flex-col sm:flex-row sm:items-center space-y-6 sm:space-y-0 sm:space-x-12"
                     >
-                        <h3 className="text-2lg font-bold text-gray-700 min-w-[120px]">
+                        <h3 className="text-2lg justify-between font-bold text-gray-700 text-center sm:text-left">
                             {workoutType}
                         </h3>
-                        <div className="flex items-center pl-[80px] gap-[80px] space-x-8 flex-grow">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                             {/* 최대 3개의 세트를 표시 */}
                             {Array.from({ length: 3 }).map((_, index) => {
                                 const reps = sets[index]?.reps || 0; // 해당 세트가 없으면 reps는 0
