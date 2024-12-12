@@ -143,9 +143,9 @@ const Dashboard = () => {
     // UI 렌더링
     return (
         <DashboardLayout>
-            <div className="min-h-screen bg-gray-100 p-6 grid grid-cols-12 gap-6">
+            <div className="min-h-screen bg-gray-100 p-6 grid grid-cols-12 md:grid-cols-12 gap-6">
                 {/* 사이드바 */}
-                <aside className="col-span-3 bg-white rounded-lg shadow p-4 flex flex-col items-center">
+                <aside className="col-span-3 bg-white rounded-lg shadow p-4 flex flex-col md:col-span-3 items-center">
                     <h2 className="text-lg font-semibold mb-4">운동 날짜 선택</h2>
                     <CustomCalendar
                         selectedDate={selectedDate}
@@ -154,9 +154,9 @@ const Dashboard = () => {
                 </aside>
 
                 {/* 메인 콘텐츠 */}
-                <main className="col-span-9 space-y-8">
+                <main className="col-span-12 md:col-span-9 space-y-6">
                     <header className="bg-white p-4 rounded-lg shadow mb-6">
-                        <h1 className="text-3xl font-bold mb-2">
+                        <h1 className="text-3xl md:text-3xl font-bold mb-2">
                             안녕하세요! {userName || "회원"}님 👋
                         </h1>
                         <p className="text-xl">오늘도 운동하러 오셨군요!</p>

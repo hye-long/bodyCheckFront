@@ -189,20 +189,20 @@ const RecordExercise = () => {
 
     return (
         <DashboardLayout>
-            <div className="flex h-screen bg-gray-100">
+            <div className="flex flex-wrap lg:flex-nowrap h-auto bg-gray-100">
                 {/* 왼쪽: 이미지 업로드 및 분석 */}
-                <div className="w-1/3 p-4">
+                <div className="w-full lg:w-1/3 p-4">
                     <h2 className="text-xl font-bold mb-2">사진 업로드</h2>
                     <p className="text-sm mb-4"> 사진 업로드 후 분석하기를 눌러주세요 </p>
-                    <div className="flex relative flex-row items-start">
+                    <div className="flex flex-wrap md:flex-nowrap relative items-start gap-4">
                         <img
                             src="/images/analyzeOne.png" // 미니어처 이미지 고정
                             alt="미니어처"
-                            className="w-1/2 border rounded-lg"
+                            className="w-full md:w-1/2 lg:w-full border rounded-lg"
                         />
-                        <div className="pl-6 flex flex-col gap-4">
+                        <div className="w-full md:pl-6 flex flex-col gap-4">
                             {selectedLabels.map((label, index) => (
-                                <div key={index} className="flex items-center gap-2">
+                                <div key={index} className="flex justify-between items-center gap-2">
                                     <span className="font-medium text-lg">{label}:</span>
                                     <span className="text-gray-700">
                                         {analysisResult && analysisResult[index] !== undefined
@@ -234,7 +234,7 @@ const RecordExercise = () => {
                 </div>
 
                 {/* 가운데: 분석 결과 및 Bar Chart */}
-                <div className="w-1/3 p-4">
+                <div className="w-full lg:w-1/3 p-4">
                     <div className="mt-4">
                         <h3 className="text-xl font-bold">BMI 차트</h3>
                         <SingleBarChart
@@ -259,7 +259,7 @@ const RecordExercise = () => {
                 </div>
 
                 {/* 오른쪽: 저장된 이미지 목록 */}
-                <div className="w-1/3 p-4 overflow-y-scroll">
+                <div className="w-full lg:w-1/3 p-4 overflow-y-scroll">
                     <h2 className="text-xl font-bold mb-4">저장된 사진</h2>
                     <div className="grid grid-cols-2 gap-4">
                         {uploadedImages.map((img) => (

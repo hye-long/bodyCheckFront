@@ -12,18 +12,18 @@ export default function RecordingExercise() {
     return (
         <DashboardLayout>
             {/* 콘텐츠 */}
-            <div className="flex mt-[100px] items-center gap-10">
+            <div className="flex flex-col lg:flex-row mt-[100px] items-center gap-10">
                 {/* 설명 영역 (왼쪽) */}
-                <div className="flex-1 p-12">
-                    <h1 className="text-[60px] font-bold mb-5">BODY : CHECK</h1>
-                    <p className="text-[30px] leading-relaxed mb-[100px] text-gray-800">
+                <div className="flex-1 p-12 lg:p-12">
+                <h1 className="text-[60px] font-bold lg:text-[60px]  mb-5">BODY : CHECK</h1>
+                    <p className="text-[30px] lg:text-[30px]  leading-relaxed mb-[100px] text-gray-800">
                         이제 운동할 준비가 되셨나요?<br />
                         <strong>BODY : CHECK</strong>는 실시간으로 운동을 체크해드려요.
                     </p>
                     {/* 서버 연결 버튼 */}
                     <button
                         onClick={handleRedirect}
-                        className="px-10 py-5 bg-black text-white rounded-full text-[16px] hover:bg-gray-800 transition"
+                        className="px-6 lg:px-10 py-3 lg:py-5 bg-black text-white rounded-full text-[14px] lg:text-[16px] hover:bg-gray-800 transition"
                     >
                         서버 연결
                     </button>
@@ -32,7 +32,7 @@ export default function RecordingExercise() {
                 {/* 버튼과 텍스트 영역 (오른쪽) */}
                 <div className="flex-1 text-center mt-10">
                     {/* 가이드 영역 */}
-                    <div className="grid grid-cols-2 gap-8 mt-10 mb-10">
+                    <div className="grid grid-cols-2 gap-6 lg:gap-8 mt-10 mb-10">
                         {/* 각 단계 */}
                         {[
                             { step: "1", text: "운동종목 선택하기" },
