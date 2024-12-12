@@ -68,18 +68,16 @@ html {
 
   .chart-section {
     padding: 1rem; /* 차트 섹션에 패딩 추가 */
-
-    /* 각 섹션을 한 줄로 표시 */
-    .flex {
-      flex-direction: column; /* 플렉스 방향을 세로로 변경 */
-      align-items: stretch; /* 모든 항목을 너비에 맞춤 */
-    }
-    .w-1/3 {
-    width: 100%; /* 너비를 100%로 설정 */
-    padding: 1rem; /* 섹션 간 여백 추가 */
   }
-    .overflow-y-scroll {
-      overflow-y: auto; /* 모바일에서 세로 스크롤 활성화 */
-    }
+
+  .chart-section.flex {
+    flex-direction: column; /* 플렉스 방향을 세로로 변경 */
+    align-items: stretch; /* 모든 항목을 너비에 맞춤 */
+  }
+
+
+
+  .chart-section.overflow-y-scroll {
+    overflow-y: auto; /* 모바일에서 세로 스크롤 활성화 */
   }
 }
