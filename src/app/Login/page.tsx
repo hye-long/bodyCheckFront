@@ -32,7 +32,7 @@ const Login: FC = () => {
                 const user = querySnapshot.docs[0].data();
                 if (user && user.password === password) {
                     login(id);
-                    router.push('/dashboard');
+                    router.replace('/dashboard')
                 } else {
                     setError('아이디 또는 비밀번호가 잘못되었습니다.');
                 }
