@@ -15,9 +15,7 @@ export interface UserData {
     weight: number;
     address: string;
     bmi: number;
-    fat: number; // 체지방률 추가
-    bodyFat: number;
-
+    fat: number;
 }
 
 interface UserState {
@@ -65,7 +63,6 @@ export const useUserStore = create<UserState>((set, get) => ({
         try {
             const data = await getUserData(userId);
             if (data) {
-                // @ts-ignore
                 set({ userData: data, isLoading: false });
             } else {
                 set({ userData: null, isLoading: false });
@@ -93,24 +90,32 @@ export const useUserStore = create<UserState>((set, get) => ({
         const { userData, updateUser } = get();
 
         if (userData && userData.height > 0 && userData.weight > 0) {
-            const calculatedBMI = userData.weight / ((userData.height / 100) ** 2);
-            const roundedBMI = Number(calculatedBMI.toFixed(2));
-
-            const bodyFatPercentage = FatCalculator(roundedBMI, userData.age, userData.gender, userData.age);
-            // @ts-ignore
-            const roundedBodyFat = Number(bodyFatPercentage.toFixed(2));
-
             try {
+                // FatCalculator 호출 및 결과 분해
+                const { bmi, fatPercentage } = FatCalculator(
+                    userData.weight,
+                    userData.height,
+                    userData.gender,
+                    userData.age
+                );
+
+                if (bmi === null || fatPercentage === null) {
+                    console.warn("FatCalculator가 유효하지 않은 값을 반환했습니다.");
+                    return;
+                }
+
+                // Firestore 업데이트
                 await updateUser(userData.id, {
-                    bmi: roundedBMI,
-                    fat: roundedBodyFat,
+                    bmi,
+                    fat: fatPercentage,
                 });
+
                 console.log("Firestore에 BMI 및 체지방률 업데이트 완료:", {
-                    bmi: roundedBMI,
-                    fat: roundedBodyFat,
+                    bmi,
+                    fat: fatPercentage,
                 });
             } catch (error) {
-                console.error("BMI/체지방률 업데이트 중 오류 발생:", error);
+                console.error("BMI/체지방률 계산 및 Firestore 업데이트 중 오류 발생:", error);
             }
         } else {
             console.warn("사용자 데이터가 충분하지 않거나 잘못되었습니다.");
