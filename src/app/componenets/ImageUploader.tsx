@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 const ImageUploader: React.FC = () => {
@@ -9,6 +9,7 @@ const ImageUploader: React.FC = () => {
     const [result, setResult] = useState<number[] | null>(null);
     const [height, setHeight] = useState<string>('');
     const [bmi, setBmi] = useState<string>('');
+    const [weight, setWeight] = useState<string | number >('');
     const [isLoading, setIsLoading] = useState(false);
     const [showLoginButton, setShowLoginButton] = useState(false); // 로그인 버튼 표시 상태
     const router = useRouter();
@@ -28,9 +29,32 @@ const ImageUploader: React.FC = () => {
         }
     };
 
+    // BMI 계산 함수
+    const calculateBMI = (height: number, weight: number): number => {
+        if (height <= 0 || weight <= 0) return 0;
+        const heightInMeters = height / 100; // cm를 m로 변환
+        return parseFloat((weight / (heightInMeters * heightInMeters)).toFixed(2));
+    };
+
+    useEffect(() => {
+        // @ts-ignore
+        if (weight > 0) {
+            const height = 170; // height는 임의로 지정 (이 부분을 실제 입력으로 바꿀 수 있음)
+            if (typeof weight === "number") {
+                const calculatedBMI = calculateBMI(height, weight);
+            } // bmi 계산
+            // @ts-ignore
+            setBmi(calculateBMI); // bmi 상태 업데이트
+        }
+    }, [weight]); // weight가 변경될 때마다 실행
+
+
+
+
+
     const handleSubmit = async () => {
         const file = fileInputRef.current?.files?.[0];
-        if (!file || !height || !bmi) {
+        if (!file || !height || !weight) {
             alert('이미지와 정보를 모두 입력해주세요.');
             return;
         }
@@ -38,7 +62,7 @@ const ImageUploader: React.FC = () => {
         const formData = new FormData();
         formData.append('image', file);
         formData.append('height', height);
-        formData.append('bmi', bmi);
+        formData.append('bmi', calculateBMI(Number(height), Number(weight)).toString()); // BMI 계산 후 문자열로 변환
 
         try {
             setIsLoading(true); // "사진 분석 중..." 상태 시작
@@ -75,103 +99,95 @@ const ImageUploader: React.FC = () => {
         }
     };
 
-    return (
-        <div className=" md:grid-cols-2 gap-8 p-12 bg-gray-100 min-h-screen">
-            {/* 이미지 업로드 섹션 */}
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-                <h2 className="text-2xl font-bold mb-6">이미지 업로드</h2>
-                <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="mb-6 block w-full border border-gray-300 rounded-lg p-2"
-                />
-                <div className="relative">
-                    {previewUrl && (
-                        <div className="relative">
-                            <img
-                                src={previewUrl}
-                                alt="Preview"
-                                className={`w-full h-auto rounded-lg shadow-md mb-6 ${isLoading ? 'opacity-50' : ''}`}
-                            />
-                            {isLoading && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
-                                    <div className="text-white text-xl font-bold animate-pulse">사진 분석 중...</div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-                <input
-                    type="number"
-                    placeholder="키(cm)"
-                    value={height}
-                    onChange={(e) => setHeight(e.target.value)}
-                    className="mb-4 block w-full border border-gray-300 rounded-lg p-2"
-                />
-                <input
-                    type="number"
-                    placeholder="BMI"
-                    value={bmi}
-                    onChange={(e) => setBmi(e.target.value)}
-                    className="mb-6 block w-full border border-gray-300 rounded-lg p-2"
-                />
-                <button
-                    onClick={handleSubmit}
-                    className="w-full px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition"
-                    disabled={isLoading}
-                >
-                    {isLoading ? '분석 중...' : '결과 예측하기'}
-                </button>
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    return <div className=" md:grid-cols-2 gap-8 p-12 bg-gray-100 min-h-screen">
+        {/* 이미지 업로드 섹션 */}
+        <div className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-6">이미지 업로드</h2>
+            <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="mb-6 block w-full border border-gray-300 rounded-lg p-2"
+            />
+            <div className="relative">
+                {previewUrl && <div className="relative">
+                        <img
+                            src={previewUrl}
+                            alt="Preview"
+                            className={`w-full h-auto rounded-lg shadow-md mb-6 ${isLoading ? 'opacity-50' : ''}`}
+                        />
+                        {isLoading && <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                                <div className="text-white text-xl font-bold animate-pulse">사진 분석 중...</div>
+                            </div>}
+                    </div>}
             </div>
-
-            {/* 결과 섹션 */}
-            {result && (
-                <div
-                    className="bg-white p-8 rounded-lg shadow-lg overflow-y-auto h-96"
-                    onScroll={handleScroll}
-                >
-                    <h3 className="text-xl font-bold mb-4">예측 결과</h3>
-                    <table className="w-full border-collapse border border-gray-300 text-sm">
-                        <thead>
-                        <tr className="bg-gray-200">
-                            <th className="border border-gray-300 px-4 py-2 text-left">항목</th>
-                            <th className="border border-gray-300 px-4 py-2 text-right">값</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {bodyMeasurementLabels.map((label, index) => (
-                            <tr key={index}>
-                                <td className="border border-gray-300 px-4 py-2">{label}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-right">
-                                    {result[index]?.toFixed(2) || 'N/A'}
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            {/* 로그인 버튼 */}
-            {showLoginButton && (
-                <div
-                    className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-500 ease-in-out ${
-                        showLoginButton ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                    }`}
-                >
-                    <button
-                        onClick={() => router.push('/Login')}
-                        className="px-6 py-3 bg-blue-600 text-white rounded-full text-lg shadow-lg hover:bg-blue-700 transition transform scale-105"
-                    >
-                        로그인하고
-                        결과 더보기
-                    </button>
-                </div>
-            )}
+            <input
+                type="number"
+                placeholder="키(cm)"
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                className="mb-4 block w-full border border-gray-300 rounded-lg p-2"
+            />
+            <input
+                type="number"
+                placeholder="몸무게(kg)"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="mb-6 block w-full border border-gray-300 rounded-lg p-2"
+            />
+            <button
+                onClick={handleSubmit}
+                className="w-full px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition"
+                disabled={isLoading}
+            >
+                {isLoading ? '분석 중...' : '결과 예측하기'}
+            </button>
         </div>
-    );
+
+        {/* 결과 섹션 */}
+        {result && <div
+                className="bg-white p-8 rounded-lg shadow-lg overflow-y-auto h-96"
+                onScroll={handleScroll}
+            >
+                <h3 className="text-xl font-bold mb-4">예측 결과</h3>
+                <table className="w-full border-collapse border border-gray-300 text-sm">
+                    <thead>
+                    <tr className="bg-gray-200">
+                        <th className="border border-gray-300 px-4 py-2 text-left">항목</th>
+                        <th className="border border-gray-300 px-4 py-2 text-right">값</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {bodyMeasurementLabels.map((label, index) => <tr key={index}>
+                            <td className="border border-gray-300 px-4 py-2">{label}</td>
+                            <td className="border border-gray-300 px-4 py-2 text-right">
+                                {result[index]?.toFixed(2) || 'N/A'}
+                            </td>
+                        </tr>)}
+                    </tbody>
+                </table>
+            </div>}
+
+        {/* 로그인 버튼 */}
+        {showLoginButton && <div
+                className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-500 ease-in-out ${
+                    showLoginButton ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+            >
+                <button
+                    onClick={() => router.push('/Login')}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-full text-lg shadow-lg hover:bg-blue-700 transition transform scale-105"
+                >
+                    로그인하고
+                    결과 더보기
+                </button>
+            </div>}
+    </div>;
 };
 
 export default ImageUploader;

@@ -55,7 +55,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
                 ) : (
                     <Link href="/Login" passHref>
                         <p className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300">
-                            로그인
+                            로그인/회원가입
                         </p>
                     </Link>
                 )}
