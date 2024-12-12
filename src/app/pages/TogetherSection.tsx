@@ -5,11 +5,10 @@ import { useObserver } from "../utils/useObserver";
 export default function TogetherSection() {
     const textRef = useRef(null);
     const imageRef = useRef(null);
-    const { isVisible: isTextVisible } = useObserver({ target: textRef, option: { threshold: 0.3 } });
-    const { isVisible: isImageVisible } = useObserver({ target: imageRef, option: { threshold: 0.5 } });
-
+    const {isVisible: isTextVisible} = useObserver({target: textRef, option: {threshold: 0.3}});
+    const {isVisible: isImageVisible} = useObserver({target: imageRef, option: {threshold: 0.5}});
     return (
-        <div className="flex items-center px-[2vw] h-[70vh] bg-gray-100 h-screen overflow-hidden">
+        <div className="flex items-center px-[2vw] lg:px-[5w] h-[50vh] bg-gray-100 lg:h-[100vh] overflow-hidden">
             {/* 텍스트 섹션 */}
             <div
                 ref={textRef}
@@ -17,10 +16,10 @@ export default function TogetherSection() {
                     isTextVisible ? "opacity-100 translate-y-0" : ""
                 }`}
             >
-                <h2 className="text-[3vw] font-bold leading-[1.2] border-l-[1vw] border-black text-black pl-4 mb-5">
-                    TOGETHER <br /> JOIN
+                <h2 className="text-[3vw] lg:text-[2.5vw] font-bold leading-[1.2] border-l-[1vw] border-black text-black pl-4 mb-5">
+                    TOGETHER <br/> JOIN
                 </h2>
-                <p className="text-[2vw] leading-[1.6] text-black">
+                <p className="text-[2vw] lg:text-[30px] leading-[1.6] text-black">
                     공유하기 기능을 통해 친구들과 함께 나의 기록을 자랑하고
                     나의 상대적 위치를 확인할 수 있어요.
                 </p>

@@ -11,7 +11,7 @@ export default function RecordSection() {
     const { isVisible: isTextVisible } = useObserver({ target: textRef, option: { threshold: 0.3 } });
 
     return (
-        <div className="flex flex-row items-center justify-between h-[70vh] bg-gray-400 overflow-hidden ">
+        <div className="flex flex-row items-center justify-between sm:h-[30vh] md:h-[90vh] bg-gray-400 overflow-hidden ">
             {/* 이미지 섹션 */}
             <div
                 ref={imageRef}

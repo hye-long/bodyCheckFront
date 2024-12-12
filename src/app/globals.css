@@ -66,7 +66,7 @@ html {
 /*핸드폰 화면 */
 @media (max-width: 767px) {
   .fixed-container {
-    max-width: 360px; /* 핸드폰 화면 고정 크기 */
+    max-width: 767px; /* 핸드폰 화면 고정 크기 */
     height: 100%; /* 콘텐츠가 늘어나면 스크롤 허용 */
   }
 
@@ -94,7 +94,8 @@ html {
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .fixed-container {
-    max-width: 768px; /* 태블릿 화면 고정 크기 */
+    min-width: 768px; /* 태블릿 화면 고정 크기 */
+    max-width: 1023px;
   }
 }
 

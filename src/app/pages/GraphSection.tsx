@@ -6,8 +6,8 @@ export default function GraphSection() {
         <div className="relative flex flex-col items-center justify-center text-center h-[100vh] bg-white overflow-hidden">
             {/* 텍스트 섹션 */}
             <div className="absolute top-[5vh] z-20 text-center">
-                <h2 className="text-[4vw] text-black font-bold">한눈에 보는 그래프</h2>
-                <p className="text-black text-[2.5vw] mt-5 leading-relaxed max-w-[60vw] mx-auto mb-3vh">
+                <h2 className="text-[4vw] lg:text-[3vw] text-black font-bold">한눈에 보는 그래프</h2>
+                <p className="text-black text-[2.5vw] lg:text-[1.5vw] mt-5 leading-relaxed max-w-[60vw] mx-auto lg:mb-4vh mb-3vh">
                     수치화된 통계 데이터로 몸의 변화를 보여드릴게요.
                 </p>
             </div>
@@ -27,7 +27,7 @@ export default function GraphSection() {
 
 
             {/* 사진 애니메이션 */}
-            <div className="absolute bottom-0 left-0 w-full h-[70vh] overflow-hidden">
+            <div className="absolute bottom-0 left-0 w-full lg:h-[60vh] h-[50vh] overflow-hidden">
                 <div className="absolute flex items-center h-full w-[500vw] animate-slide-images">
                     {[
                         "/images/graph1.png",

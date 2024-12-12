@@ -12,9 +12,9 @@ const WhySection: React.FC = () => {
     const { isVisible: isVisible3 } = useObserver({ target: ref3, option: { threshold: 0.9 } });
 
     return (
-        <div className="flex justify-between items-start px-[10svw] py-[20vh] bg-black text-white h-screen box-border">
+        <div className="flex  justify-between items-start px-[10svw]  py-[20vh] bg-black text-white h-1/4 box-border">
             {/* 텍스트 섹션 */}
-            <div className="flex-1 max-w-[50%]">
+            <div className="flex-1 max-w-[70%] lg:max-w-[50%] mb-[5vh] lg:mb-0">
                 <h2 className="text-[6vw] font-bold mb-[2vh]">WHY?</h2>
                 <p className="text-[2vw] leading-[1.8]">
                     운동의 중요성은 알지만 어떤 운동을 시작해야 할지 막막한 당신을 위해<br />
