@@ -11,7 +11,7 @@ export default function RecordSection() {
     const { isVisible: isTextVisible } = useObserver({ target: textRef, option: { threshold: 0.3 } });
 
     return (
-        <div className="flex flex-row items-center justify-between h-[90vh] bg-gray-400 overflow-hidden px-[5vw]">
+        <div className="flex flex-row items-center justify-between h-[70vh] bg-gray-400 overflow-hidden ">
             {/* 이미지 섹션 */}
             <div
                 ref={imageRef}
@@ -19,18 +19,18 @@ export default function RecordSection() {
                     isImageVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-[5vw]"
                 }`}
             >
-                <div className="absolute top-0 right-0 w-full h-full  rounded-lg -z-10"></div>
+                <div className="absolute top-0 right-0 left-0 w-full h-full rounded-lg "></div>
                 <img
                     src="/images/sportsmockup.png"
                     alt="운동 측정 이미지 1"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full left-0 object-contain"
                 />
             </div>
 
             {/* 텍스트 섹션 */}
             <div
                 ref={textRef}
-                className={`flex-1 flex flex-col items-end justify-center pr-[5vw] text-right w-[40%] transition-opacity duration-1000 ease-out transform ${
+                className={`flex-1 flex flex-col items-end justify-center pr-[5vw] text-right w-[80vw] transition-opacity duration-1000 ease-out transform ${
                     isTextVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-[5vw]"
                 }`}
             >

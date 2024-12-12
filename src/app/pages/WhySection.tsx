@@ -12,7 +12,7 @@ const WhySection: React.FC = () => {
     const { isVisible: isVisible3 } = useObserver({ target: ref3, option: { threshold: 0.9 } });
 
     return (
-        <div className="flex justify-between items-start px-[5vw] py-[5vh] bg-black text-white h-screen box-border">
+        <div className="flex justify-between items-start px-[10svw] py-[20vh] bg-black text-white h-screen box-border">
             {/* 텍스트 섹션 */}
             <div className="flex-1 max-w-[50%]">
                 <h2 className="text-[6vw] font-bold mb-[2vh]">WHY?</h2>

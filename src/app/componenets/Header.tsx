@@ -17,7 +17,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
     };
 
     return (
-        <header className="flex justify-between items-center bg-[#030303] shadow-md py-4 px-8 sticky top-0 z-50 text-white">
+        <header className="flex justify-between items-center bg-[#030303] shadow-md py-4 px-4 sm:px-1 md:py-4 md:px-8 sticky top-0 z-50 text-white">
             {/* 햄버거 메뉴 (로그인 상태일 때만 표시) */}
             {isAuthenticated && toggleSidebar && (
                 <button
@@ -31,7 +31,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
 
             {/* 로고 */}
             <Link href={isAuthenticated ? "/dashboard" : "/"} passHref>
-                <p className="text-[24px] font-sans hover:opacity-80 cursor-pointer">
+                <p className="text-[24px] font-sans hover:opacity-80 cursor-pointer whitespace-nowrap">
                     BODY:CHECK
                 </p>
             </Link>
@@ -55,7 +55,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
                 ) : (
                     <Link href="/Login" passHref>
                         <p className="bg-transparent border-none text-white text-base cursor-pointer hover:text-gray-300">
-                            로그인/회원가입
+                            로그인 / 회원가입
                         </p>
                     </Link>
                 )}

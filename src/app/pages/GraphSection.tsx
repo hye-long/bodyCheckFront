@@ -27,8 +27,8 @@ export default function GraphSection() {
 
 
             {/* 사진 애니메이션 */}
-            <div className="absolute bottom-0 left-0 w-full h-[600px] overflow-hidden">
-                <div className="absolute flex items-center h-full w-[100%] animate-slide-images">
+            <div className="absolute bottom-0 left-0 w-full h-[70vh] overflow-hidden">
+                <div className="absolute flex items-center h-full w-[500vw] animate-slide-images">
                     {[
                         "/images/graph1.png",
                         "/images/graph2.png",

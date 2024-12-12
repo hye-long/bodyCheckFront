@@ -17,6 +17,7 @@ import useAuthStore from "@/store/useAuthStore";
 import DashboardLayout from "@/app/componenets/dashboardLayout";
 import SingleBarChart from "@/app/componenets/BarChart";
 import AnalysisResultTable from "@/app/componenets/AnalysisResultTable";
+import { FaTrashAlt } from "react-icons/fa";
 
 const RecordExercise = () => {
     const userId = useAuthStore((state) => state.userId);
@@ -28,6 +29,8 @@ const RecordExercise = () => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [height, setHeight] = useState<string>("");
     const [bmi, setBmi] = useState<string>("");
+    const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedImage, setSelectedImage] = useState<any | null>(null);
 
     const selectedLabels = [
@@ -131,6 +134,38 @@ const RecordExercise = () => {
         widget.open();
     };
 
+    const toggleImageSelection = (imageId: string) => {
+        setSelectedImageIds((prev) =>
+            prev.includes(imageId)
+                ? prev.filter((id) => id !== imageId)
+                : [...prev, imageId]
+        );
+    };
+
+    const handleDeleteSelected = async () => {
+        if (selectedImageIds.length === 0) {
+            alert("삭제할 이미지를 선택하세요.");
+            return;
+        }
+
+        const confirmDelete = confirm("선택한 이미지를 삭제하시겠습니까?");
+        if (!confirmDelete) return;
+
+        try {
+            for (const id of selectedImageIds) {
+                await deleteDoc(doc(firestore, "images", id));
+            }
+            setUploadedImages((prev) =>
+                prev.filter((img) => !selectedImageIds.includes(img.id))
+            );
+            setSelectedImageIds([]);
+            alert("선택한 이미지가 삭제되었습니다.");
+        } catch (error) {
+            console.error("이미지 삭제 중 오류 발생:", error);
+            alert("이미지를 삭제하는 중 오류가 발생했습니다.");
+        }
+    };
+
     const handleAnalyze = async () => {
         if (!currentImage || !height || !bmi) {
             alert("이미지 업로드 후 분석을 진행해주세요.");
@@ -183,20 +218,22 @@ const RecordExercise = () => {
                 <div className="w-full lg:w-1/3 p-4">
                     <h2 className="text-lg lg:text-xl font-bold mb-2">사진 업로드</h2>
                     <p className="text-sm mb-4">사진 업로드 후 분석하기를 눌러주세요</p>
-                    <img
-                        src="/images/analyzeOne.png"
-                        alt="미니어처"
-                        className="w-[30vw] h-[30vw] rounded-lg"
-                    />
-                    <div className="grid grid-cols-2 gap-4 mt-4">
-                        {selectedLabels.map((label, index) => (
-                            <div key={index} className="text-sm flex justify-between">
-                                <span className="font-medium text-lg">{label}:</span>
-                                <span className="text-gray-700">
-                                    {analysisResult?.[index]?.toFixed(2) || " "}
-                                </span>
-                            </div>
-                        ))}
+                    <div className="flex items-center gap-4">
+                        <img
+                            src="/images/analyzeOne.png"
+                            alt="미니어처"
+                            className="w-[20vw] h-[30vw] rounded-lg"
+                        />
+                        <div className="grid gap-2 text-sm">
+                            {selectedLabels.map((label, index) => (
+                                <div key={index} className="flex justify-between">
+                                    <span className="font-medium">{label}:</span>
+                                    <span className="text-gray-700">
+                                        {analysisResult?.[index]?.toFixed(2) || " "}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     {selectedImage && (
                         <div className="mt-4 text-gray-600">
@@ -235,15 +272,44 @@ const RecordExercise = () => {
                         maxScale={100}
                         stepSize={10}
                     />
-                    <h3 className="text-2xl font-bold mt-4">분석결과</h3>
-                    <AnalysisResultTable analysisResult={analysisResult} />
+                    <h3 className="text-2xl font-bold mt-8">분석결과</h3>
+                    <AnalysisResultTable analysisResult={analysisResult}/>
+
                 </div>
 
+
                 <div className="w-full lg:w-1/3 p-4 overflow-y-scroll">
-                    <h2 className="text-xl font-bold mb-4">저장된 사진</h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold">저장된 사진</h2>
+                        <button
+                            onClick={() => {
+                                if (selectedImageIds.length > 0) {
+                                    handleDeleteSelected();
+                                } else {
+                                    setIsSelectionMode(!isSelectionMode);
+                                }
+                            }}
+                            className={`px-4 py-2 text-white rounded-lg ${
+                                selectedImageIds.length > 0
+                                    ? "bg-red-500 hover:bg-red-700"
+                                    : "bg-blue-500 hover:bg-blue-700"
+                            }`}
+                        >
+                            {selectedImageIds.length > 0 ? "삭제" : "편집"}
+                        </button>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         {uploadedImages.map((img) => (
                             <div key={img.id} className="relative flex flex-col items-center">
+                                {isSelectionMode && (
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedImageIds.includes(img.id)}
+                                        onChange={() => toggleImageSelection(img.id)}
+                                        className="absolute top-2 left-2 w-6 h-6"
+                                    />
+                                )}
                                 <img
                                     src={img.imageUrl}
                                     alt="저장된 사진"

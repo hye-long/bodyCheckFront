@@ -161,10 +161,10 @@ const Dashboard = () => {
 
     return (
         <DashboardLayout>
-            <div className="flex flex-wrap h-auto bg-gray-100">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-[2vw] h-full bg-gray-100 overflow-hidden">
                 {/* 사이드바 영역 */}
-                <aside className="col-span-3 bg-white rounded-lg shadow p-4 flex flex-col items-center">
-                    <h2 className="text-lg font-semibold mb-4">운동 날짜 선택</h2>
+                <aside className="p-[2vw] bg-white shadow rounded-lg">
+                    <h2 className="text-[2vw] font-semibold mb-[1vw]">운동 날짜 선택</h2>
                     <CustomCalendar
                         selectedDate={selectedDate}
                         onDateChange={(date) => setSelectedDate(date)} // 날짜 변경 시 상태 업데이트
@@ -172,11 +172,15 @@ const Dashboard = () => {
                 </aside>
 
                 {/* 메인 콘텐츠 영역 */}
-                <main className="col-span-9 space-y-8">
+                <main className="lg:col-span-2 p-[2vw] space-y-[2vw]">
                     <header className="bg-white p-4 rounded-lg shadow mb-6">
-                        <h1 className="text-3xl font-bold mb-2">안녕하세요 ! {userName || "회원"}님 👋</h1>
+                        <h1 className="text-[2vw] font-bold mb-[1vw]">안녕하세요 ! {userName || "회원"}님 👋</h1>
                         <p className="text-xl "> 오늘도 운동하러 오셨군요!</p>
                     </header>
+
+
+
+
 
                     {/* 차트 컴포넌트 */}
                     <Chart

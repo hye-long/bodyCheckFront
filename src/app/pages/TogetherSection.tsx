@@ -9,7 +9,7 @@ export default function TogetherSection() {
     const { isVisible: isImageVisible } = useObserver({ target: imageRef, option: { threshold: 0.5 } });
 
     return (
-        <div className="flex items-center px-[5vw] py-[5vw] bg-gray-100 h-screen overflow-hidden">
+        <div className="flex items-center px-[2vw] h-[70vh] bg-gray-100 h-screen overflow-hidden">
             {/* 텍스트 섹션 */}
             <div
                 ref={textRef}
