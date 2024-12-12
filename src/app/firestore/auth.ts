@@ -1,36 +1,26 @@
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, User } from "firebase/auth";
-import { auth } from './firebase';
-
-/*
- * 이메일과 비밀번호로 회원가입
- * @param email 사용자 이메일
- * @param password 사용자 비밀번호
- * @param id 사용자 id
- */
-
-export const signUpWithEmail = async (email: string, password: string, ) => {
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        return userCredential.user; // 회원가입한 사용자 객체 반환
-    } catch (error) {
-        console.error("회원가입 실패:", error);
-        throw error;
-    }
-};
+// Firestore 인증 관련 유틸리티
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { firestore } from "@/app/firestore/firebase";
 
 /**
- * 이메일 인증 링크 전송
- * @param user Firebase 사용자 객체
+ * Firestore에서 사용자 ID와 비밀번호 검증
+ * @param id Firestore의 'users' 컬렉션의 사용자 ID
+ * @param password Firestore의 사용자 비밀번호
+ * @returns 사용자 데이터 또는 null
  */
-/*
-export const sendVerificationEmail = async (user: User) => {
+export const validateUser = async (id: string, password: string): Promise<any | null> => {
     try {
-        await sendEmailVerification(user, actionCodeSettings);
-        console.log("인증 이메일 전송 완료:", user.email);
+        const usersRef = collection(firestore, "users");
+        const q = query(usersRef, where("id", "==", id));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const user = querySnapshot.docs[0].data();
+            return user.password === password ? user : null;
+        }
+        return null; // 사용자가 없거나 비밀번호가 일치하지 않음
     } catch (error) {
-        console.error("이메일 인증 전송 실패:", error);
-        throw error;
+        console.error("사용자 인증 중 오류:", error);
+        return null;
     }
 };
-
-*/

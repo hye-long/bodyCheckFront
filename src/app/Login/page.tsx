@@ -1,22 +1,18 @@
 'use client';
 
 import React, { FC, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { firestore } from '../firestore/firebase';
+import { useRouter } from 'next/navigation'; // Import router for navigation
 import useAuthStore from '@/store/useAuthStore';
 import Link from 'next/link';
 import LogoText from '@/app/componenets/logoText';
-import useSyncAuthState from "../../store/useSyncAuthState";
 
 const Login: FC = () => {
-    useSyncAuthState();
-    const { login } = useAuthStore();
+    const { login } = useAuthStore(); // Zustand's
+    const router = useRouter();
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter();
 
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -24,18 +20,9 @@ const Login: FC = () => {
         setIsLoading(true);
 
         try {
-            const usersRef = collection(firestore, 'users');
-            const q = query(usersRef, where('id', '==', id));
-            const querySnapshot = await getDocs(q);
-
-            if (!querySnapshot.empty) {
-                const user = querySnapshot.docs[0].data();
-                if (user && user.password === password) {
-                    login(id);
-                    router.replace('/dashboard')
-                } else {
-                    setError('아이디 또는 비밀번호가 잘못되었습니다.');
-                }
+            const success = await login(id, password); // Zustand
+            if (success) {
+                router.push('/dashboard');
             } else {
                 setError('아이디 또는 비밀번호가 잘못되었습니다.');
             }
@@ -96,15 +83,6 @@ const Login: FC = () => {
                 </button>
 
                 {error && <p className="text-center text-red-500 mt-4">{error}</p>}
-
-                <Link href="/notfound">
-                    <button
-                        type="button"
-                        className="w-full py-3 mt-4 text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-400"
-                    >
-                        이메일로 로그인
-                    </button>
-                </Link>
             </form>
 
             <hr className="w-full border-t border-black my-6 max-w-lg" />

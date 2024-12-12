@@ -38,7 +38,7 @@ interface ChartProps {
     workoutData: WorkoutSession[];
     targetReps: { [key: string]: number };
     onUpdateTargetReps: (workoutType: string, newTarget: number) => void;
-    lineChartData: any; // 꺾은선 차트 데이터
+    lineChartData: any; // 꺾은선 차트
 }
 
 const Chart: React.FC<ChartProps> = ({

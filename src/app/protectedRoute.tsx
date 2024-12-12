@@ -1,41 +1,54 @@
 "use client";
 
-import React, {useEffect, useRef} from "react";
-import {useRouter} from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/useAuthStore";
-import {auth} from "@/app/firestore/firebase"; // 수정: Firebase 초기화된 auth 객체 가져오기
-import {onAuthStateChanged} from "firebase/auth";
+import { getUserData } from "@/app/firestore/firestore";
 
 interface ProtectedRouteProps {
-    children: React.ReactNode,
-    isRestricted?: boolean
+    children: React.ReactNode;
+    isRestricted?: boolean; // 인증되지 않은 사용자를 제한할지 여부
 }
 
-export default function ProtectedRoute({children, isRestricted}: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, isRestricted }: ProtectedRouteProps) {
     const router = useRouter();
-    const {isAuthenticated, login, logout} = useAuthStore();
-    const isInitialized = useRef(false); // 중복 호출 방지용
+    const { isAuthenticated, userId, logout } = useAuthStore();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (isInitialized.current) return; // 이미 초기화된 경우 실행 방지
-        isInitialized.current = true;
+        const verifyUser = async () => {
+            try {
+                if (!userId) {
+                    if (isRestricted) {
+                        router.replace("/Login");
+                    }
+                    setLoading(false);
+                    return;
+                }
 
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log("Firebase 사용자 인증됨:", user.uid);
-                login(user.uid); // Zustand 상태 업데이트
-            } else {
-                console.log("Firebase 사용자 로그아웃됨");
-                logout(); // Zustand 상태 초기화
-                router.replace("/Login"); // 로그인 페이지로 리다이렉트
+                const userData = await getUserData(userId);
+                if (!userData && isRestricted) {
+                    setError("사용자 정보를 찾을 수 없습니다.");
+                    console.warn("Firestore에서 사용자 정보를 찾을 수 없음");
+                }
+            } catch (err) {
+                console.error("사용자 확인 중 오류 발생:", err);
+                setError("사용자 확인 중 오류가 발생했습니다.");
+            } finally {
+                setLoading(false);
             }
-        });
+        };
 
-        return () => unsubscribe();
-    }, [login, logout, router]);
+        verifyUser();
+    }, [isRestricted, router, userId]);
 
-    if (!isAuthenticated) {
+    if (loading) {
         return <div>로딩 중...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
     }
 
     return <>{children}</>;

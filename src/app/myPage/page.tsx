@@ -28,6 +28,7 @@ const MyPage: React.FC = () => {
         address: "",
         password: "",
         confirmPassword: "",
+
     });
     const [isVerified, setIsVerified] = useState(false); // 비밀번호 확인 여부
     const [currentPassword, setCurrentPassword] = useState(""); // 현재 비밀번호 입력 값
@@ -62,6 +63,7 @@ const MyPage: React.FC = () => {
                 password: "",
                 confirmPassword: "",
                 bmi: userData.bmi || undefined,
+
             });
         }
     }, [userData]);
@@ -125,11 +127,12 @@ const MyPage: React.FC = () => {
             // 수정된 필드만 업데이트
             const updatedData: Partial<UserData> = {};
             Object.keys(formData).forEach((key) => {
-                if (formData[key] !== userData?.[key as keyof UserData] && key !== "confirmPassword") {
-                    if (key === "password" && formData[key] === "") {
-                        return; // 비밀번호가 비어 있으면 업데이트하지 않음
-                    }
-                    updatedData[key as keyof UserData] = formData[key];
+                const formValue = formData[key as keyof UserData];
+                // @ts-ignore
+                const userValue = userData?.[key as keyof UserData];
+                if (formValue !== userValue && key !== "confirmPassword") {
+                    if (key === "password" && !formValue) return; // Skip empty password
+                    updatedData[key as keyof UserData] = formValue;
                 }
             });
 

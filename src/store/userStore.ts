@@ -1,6 +1,8 @@
+// src/store/userStore.ts
 import { create } from "zustand";
+import { validateUser } from "../app/firestore/auth";
 import { getUserData, updateUserData } from "@/app/firestore/firestore";
-import {FatCalculator} from "../app/componenets/FatCalculator";
+import { FatCalculator } from "@/app/componenets/FatCalculator";
 
 export interface UserData {
     id: string;
@@ -14,21 +16,48 @@ export interface UserData {
     address: string;
     bmi: number;
     fat: number; // 체지방률 추가
-    [key: string]: string | number;
+    bodyFat: number;
+
 }
 
 interface UserState {
-    userData: UserData | null;
-    isLoading: boolean;
-    fetchUser: (userId: string) => Promise<void>;
-    updateUser: (userId: string, updatedFields: Partial<UserData>) => Promise<void>;
-    calculateAndUpdateMetrics: () => Promise<void>; // BMI 및 체지방률 계산
-    calculateFatOnly: () => Promise<void>; // 체지방률만 계산
+    userData: UserData | null; // 사용자 데이터
+    isAuthenticated: boolean; // 인증 상태
+    isLoading: boolean; // 로딩 상태
+    login: (id: string, password: string) => Promise<boolean>; // 로그인 함수
+    logout: () => void; // 로그아웃 함수
+    fetchUser: (userId: string) => Promise<void>; // Firestore 사용자 데이터 로드
+    updateUser: (userId: string, updatedFields: Partial<UserData>) => Promise<void>; // Firestore 사용자 데이터 업데이트
+    calculateAndUpdateMetrics: () => Promise<void>; // BMI 및 체지방률 계산 및 업데이트
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
     userData: null,
+    isAuthenticated: false,
     isLoading: false,
+
+    // 로그인 처리
+    login: async (id: string, password: string): Promise<boolean> => {
+        set({ isLoading: true });
+        try {
+            const user = await validateUser(id, password); // Firestore에서 사용자 검증
+            if (user) {
+                set({ userData: user, isAuthenticated: true, isLoading: false });
+                return true; // 로그인 성공
+            }
+            set({ isAuthenticated: false, isLoading: false });
+            return false; // 로그인 실패
+        } catch (error) {
+            console.error("로그인 중 오류 발생:", error);
+            set({ isAuthenticated: false, isLoading: false });
+            return false;
+        }
+    },
+
+    // 로그아웃 처리
+    logout: () => {
+        set({ userData: null, isAuthenticated: false });
+    },
 
     // Firestore에서 사용자 데이터 로드
     fetchUser: async (userId: string) => {
@@ -64,16 +93,13 @@ export const useUserStore = create<UserState>((set, get) => ({
         const { userData, updateUser } = get();
 
         if (userData && userData.height > 0 && userData.weight > 0) {
-            // BMI 계산
             const calculatedBMI = userData.weight / ((userData.height / 100) ** 2);
             const roundedBMI = Number(calculatedBMI.toFixed(2));
 
-            // 체지방률 계산
             const bodyFatPercentage = FatCalculator(roundedBMI, userData.age, userData.gender, userData.age);
             // @ts-ignore
             const roundedBodyFat = Number(bodyFatPercentage.toFixed(2));
 
-            // Zustand 상태 업데이트 및 Firestore 동기화
             try {
                 await updateUser(userData.id, {
                     bmi: roundedBMI,
@@ -88,32 +114,6 @@ export const useUserStore = create<UserState>((set, get) => ({
             }
         } else {
             console.warn("사용자 데이터가 충분하지 않거나 잘못되었습니다.");
-        }
-    },
-
-    // 체지방률만 계산 및 상태 업데이트
-    calculateFatOnly: async () => {
-        const { userData, updateUser } = get();
-
-        if (userData && userData.bmi > 0) {
-            // 체지방률 계산
-            const bodyFatPercentage = FatCalculator(userData.bmi, userData.age, userData.gender, userData.age);
-            // @ts-ignore
-            const roundedBodyFat = Number(bodyFatPercentage.toFixed(2));
-
-            // Zustand 상태 업데이트 및 Firestore 동기화
-            try {
-                await updateUser(userData.id, {
-                    fat: roundedBodyFat,
-                });
-                console.log("Firestore에 체지방률 업데이트 완료:", {
-                    fat: roundedBodyFat,
-                });
-            } catch (error) {
-                console.error("체지방률 업데이트 중 오류 발생:", error);
-            }
-        } else {
-            console.warn("BMI 데이터가 부족하거나 잘못되었습니다.");
         }
     },
 }));

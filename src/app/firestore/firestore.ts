@@ -1,177 +1,74 @@
-// src/firestore/firestore.ts
-import { firestore } from './firebase';
-import {collection, addDoc, getDoc, doc, query, where, getDocs, setDoc, updateDoc} from 'firebase/firestore';
-
-
-/**
- * Firestore에서 유저 데이터를 조회
- * @param userId 유저의 고유 ID
- */
-export const getUserData = async (userId: string) => {
-    try {
-        const userDocRef = doc(firestore, "users", userId);
-        const userSnapshot = await getDoc(userDocRef);
-        if (userSnapshot.exists()) {
-            return userSnapshot.data();
-        } else {
-            console.log("정보없음!");
-            return null;
-        }
-    } catch (error) {
-        console.error("에러 표시", error);
-        throw error;
-    }
-};
+// Firestore 데이터 관련 유틸리티
+import {collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where} from "firebase/firestore";
+import { firestore } from "@/app/firestore/firebase";
 
 /**
- * Firestore에서 아이디 중복 여부를 확인
- * @param id 확인할 아이디
- * @returns 아이디가 존재하면 true, 존재하지 않으면 false
+ * Firestore에서 유저 데이터를 가져오기
+ * @param userId Firestore의 'users' 컬렉션의 사용자 ID
+ * @returns 사용자 데이터 또는 null
  */
-export const checkIdExists = async (id: string): Promise<boolean> => {
+export const getUserData = async (userId: string): Promise<any | null> => {
     try {
-        const usersRef = collection(firestore, "users");
-        const q = query(usersRef, where("id", "==", id)); // id 필드로 중복 검사
-        const querySnapshot = await getDocs(q);
-
-        return !querySnapshot.empty; // 결과가 비어있지 않으면 중복된 아이디가 존재
+        const userDoc = doc(firestore, "users", userId);
+        const userSnapshot = await getDoc(userDoc);
+        return userSnapshot.exists() ? userSnapshot.data() : null;
     } catch (error) {
-        console.error("Error checking ID existence:", error);
-        throw error;
+        console.error("Firestore에서 사용자 데이터를 가져오는 중 오류:", error);
+        return null;
     }
 };
 
 
-/**
- * Firestore에서 이메일 중복을 확인하는 함수
- * @param email 체크할 이메일 주소
- * @returns 중복된 이메일이 있으면 true, 없으면 false 반환
- */
-export const checkEmailExists = async (email: string): Promise<boolean> => {
+export const getUserNameById = async (userId: string): Promise<string | null> => {
     try {
-        const usersRef = collection(firestore, 'users'); // 'users' 컬렉션 참조
-        const q = query(usersRef, where('email', '==', email)); // 이메일이 일치하는 문서 조회
-        const querySnapshot = await getDocs(q);
-
-        return !querySnapshot.empty; // 문서가 있으면 true, 없으면 false
+        const user = await getUserData(userId);
+        return user?.name || null; // name 필드 반환
     } catch (error) {
-        console.error("이메일 중복 확인 오류:", error);
-        throw error;
+        console.error("사용자 이름 가져오기 중 오류:", error);
+        return null;
     }
 };
 
 /**
- * Firestore에 새로운 유저 데이터를 추가
- * @param userId 유저의 고유 ID
- * @param data Firestore에 저장할 유저 데이터
- */
-export const addUserData = async (userId: string, data: any) => {
-    try {
-        await setDoc(doc(firestore, 'users', userId), data);
-        console.log("User added with ID:", userId);
-    } catch (error) {
-        console.error("Error adding document:", error);
-        throw error;
-    }
-};
-
-/**
- * Firestore에 이미지 URL 저장
- * @param userId 유저의 고유 ID
- * @param imageUrl 저장할 이미지 URL
- */
-export const saveImageUrl = async (userId: string, imageUrl: string) => {
-    try {
-        const imagesRef = collection(firestore, "images");
-        await addDoc(imagesRef, {
-            userId,
-            imageUrl,
-            uploadedAt: new Date().toISOString(), // 업로드 시간 기록
-        });
-        console.log("이미지 URL 저장.");
-    } catch (error) {
-        console.error("이미지 URL 저장하다가 실패..:", error);
-        throw error;
-    }
-};
-
-/**
- * Firestore에서 특정 유저의 이미지 URL 조회
- * @param userId 유저의 고유 ID
- * @returns 이미지 URL 목록
- */
-export const getUserImages = async (userId: string): Promise<string[]> => {
-    try {
-        const imagesRef = collection(firestore, "images");
-        const q = query(imagesRef, where("userId", "==", userId));
-        const querySnapshot = await getDocs(q);
-
-        const imageUrls: string[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.imageUrl) {
-                imageUrls.push(data.imageUrl);
-            }
-        });
-
-        return imageUrls;
-    } catch (error) {
-        console.error("에러:", error);
-        throw error;
-    }
-};
-
-/**
- * Firestore에서 유저 비밀번호를 조회
- * @param id 유저 ID
- * @param name 유저 이름
- * @returns 비밀번호를 반환하거나 null
- */
-export const getPasswordByIdAndName = async (id: string, name: string): Promise<string | null> => {
-    try {
-        const usersRef = collection(firestore, "users");
-        const q = query(usersRef, where("id", "==", id), where("name", "==", name));
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-            console.log("해당 ID와 이름을 가진 사용자가 없습니다.");
-            return null;
-        }
-
-        const userData = querySnapshot.docs[0].data();
-        return userData.password || null;
-    } catch (error) {
-        console.error("비밀번호 조회 오류:", error);
-        throw error;
-    }
-};
-
-
-interface UserData {
-    id: string;
-    age: number;
-    height: number;
-    weight: number;
-    address: string;
-    [key: string]: string | number;
-}
-/**
- * Firestore에서 사용자 데이터를 업데이트
+ * Firestore에서 사용자 데이터 업데이트
  * @param userId 사용자 ID
- * @param updatedFields 업데이트할 필드 객체
+ * @param updatedFields 업데이트할 필드
  */
-export const updateUserData = async (
-    userId: string,
-    updatedFields: Partial<UserData>
-): Promise<void> => {
+export const updateUserData = async (userId: string, updatedFields: Partial<any>): Promise<void> => {
     try {
         const userDoc = doc(firestore, "users", userId);
         await updateDoc(userDoc, updatedFields);
-        console.log("Firestore 데이터 업데이트 완료!");
     } catch (error) {
-        console.error("Firestore 데이터 업데이트 오류:", error);
+        console.error("Firestore 데이터 업데이트 중 오류:", error);
         throw error;
     }
 };
 
-export { firestore };
+
+// 운동 세트 인터페이스
+interface WorkoutSet {
+    reps: number;
+    weight: string;
+}
+// 운동 세션 인터페이스
+interface WorkoutSession {
+    workout_type: string;
+    sets: WorkoutSet[];
+    date: string;
+    color?: string;
+}
+
+export const getWorkoutSessionsByUser = async (userId: string): Promise<WorkoutSession[]> => {
+    try {
+        const q = query(
+            collection(firestore, "workout_sessions"),
+            where("user_id", "==", userId)
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map((doc) => doc.data() as WorkoutSession); // 데이터를 배열로 반환
+    } catch (error) {
+        console.error("운동 세션 가져오기 중 오류:", error);
+        return [];
+    }
+};
+

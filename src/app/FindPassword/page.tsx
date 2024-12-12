@@ -1,3 +1,18 @@
+
+import { FC } from 'react';
+
+
+const FindPassword: FC = () => {
+    return (
+        <div >
+            <h1>비밀번호 찾기 페이지 빌딩 중...</h1>
+        </div>
+    );
+};
+
+export default FindPassword;
+
+/*
 'use client';
 import { useState } from "react";
 import { getPasswordByIdAndName } from "../firestore/firestore";
@@ -70,3 +85,5 @@ const FindPassword = () => {
 };
 
 export default FindPassword;
+
+ */
