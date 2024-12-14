@@ -6,7 +6,7 @@ import DashboardLayout from "@/app/componenets/dashboardLayout";
 export default function RecordingExercise() {
     const handleRedirect = () => {
         // 서버 연결 URL을 새 탭에서 열기
-        window.open("http://202.30.29.168:9888", "_blank");
+        window.open("https://www.juhwan.store/", "_blank");
     };
 
     return (
