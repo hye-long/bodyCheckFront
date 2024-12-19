@@ -76,10 +76,6 @@ export default function Signup() {
             confirmPassword &&
             name &&
             gender &&
-            address &&
-            height > 0 &&
-            weight > 0 &&
-            age > 0 &&
             isIdUnique &&
             !passwordError &&
             !confirmPasswordError
