@@ -1,8 +1,10 @@
 'use client';
-import React from "react";
+import React,{useState,useEffect} from "react";
 import useSignupStore from "@/store/useSignupStore";
 import {useRouter} from "next/navigation";
 import {handleSignup, checkIdAvailability, isPasswordValid} from "../utils/signupUtils";
+import ReactDOM from "react-dom";
+import DaumPostcode from "react-daum-postcode";
 
 export default function Signup() {
     const router = useRouter();
@@ -21,6 +23,20 @@ export default function Signup() {
         confirmPasswordError,
         setField,
     } = useSignupStore();
+
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false); //주소모달창
+    const [detailedAddress, setDetailedAddress] = useState(''); // 상세주소 상태
+
+
+
+    useEffect(() => {
+        if (!document.getElementById("global-modal")) {
+            const modalDiv = document.createElement("div");
+            modalDiv.id = "global-modal";
+            document.body.appendChild(modalDiv);
+        }
+    }, []);
+
 
     // 아이디 중복 확인 핸들러
     const handleIdCheck = async () => {
@@ -57,7 +73,7 @@ export default function Signup() {
         }
     };
 
-    // confirmPassword 변경 시 유효성 검사
+    // 비밀번호 확인 유효성 검사
     const handleConfirmPasswordChange = (value: string) => {
         setField("confirmPassword", value);
 
@@ -67,8 +83,17 @@ export default function Signup() {
             setField("confirmPasswordError", null);
         }
     };
+    // w주소 선택 완료
+    const handleAddressSelect = (selectedAddress: string) => {
+        setField("address", selectedAddress);
+        setIsAddressModalOpen(false); // 모달 닫기
+    };
 
-    // 폼 유효성 검사
+
+
+
+
+    // 폼 전체의 유효성 검사.. 이거 입력 안되면 아예 못넘어가게 했음
     const isFormValid = (): "" | false | null | boolean => {
         return (
             id &&
@@ -98,7 +123,7 @@ export default function Signup() {
                     {/* 아이디 입력 */}
                     <div>
                         <label htmlFor="id" className="block text-sm font-medium text-gray-700">
-                            아이디
+                            아이디*
                         </label>
                         <div className="flex items-center gap-2 mt-2">
                             <input
@@ -128,7 +153,7 @@ export default function Signup() {
                     {/* 비밀번호 입력 */}
                     <div>
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                            비밀번호
+                            비밀번호*
                         </label>
                         <input
                             id="password"
@@ -149,7 +174,7 @@ export default function Signup() {
                             htmlFor="confirmPassword"
                             className="block text-sm font-medium text-gray-700"
                         >
-                            비밀번호 확인
+                            비밀번호 확인*
                         </label>
                         <input
                             id="confirmPassword"
@@ -167,7 +192,7 @@ export default function Signup() {
                     {/* 이름 */}
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                            이름
+                            이름*
                         </label>
                         <input
                             id="name"
@@ -178,6 +203,59 @@ export default function Signup() {
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
                         />
                     </div>
+                    {/* 키 */}
+                    <div>
+                        <label htmlFor="height" className="block text-sm font-medium text-gray-700">
+                            키 (cm)*
+                        </label>
+                        <input
+                            id="height"
+                            type="number"
+                            value={height}
+                            onChange={(e) => setField("height", e.target.value)}
+                            placeholder="키 입력하세요"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
+                        />
+                    </div>
+                    {/* 몸무게 */}
+                    <div>
+                        <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
+                            몸무게 (kg)*
+                        </label>
+                        <input
+                            id="weight"
+                            type="number"
+                            value={weight}
+                            onChange={(e) => setField("weight", e.target.value)}
+                            placeholder="몸무게를 입력하세요"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
+                        />
+                    </div>
+                    {/* 주소 선택 */}
+                    <div>
+                        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                            주소검색 *
+                        </label>
+                        <div className="flex items-center gap-2 mt-2">
+                            <input
+                                id="address"
+                                type="text"
+                                value={address}
+                                readOnly={true}
+                                onClick={()=> setIsAddressModalOpen(true)}
+                                placeholder="주소를 검색하세요"
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                />
+                            <button
+                                type="button"
+                                onClick={() => setIsAddressModalOpen(true)}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                                >
+                                주소검색
+                            </button>
+                        </div>
+                    </div>
+
 
                     {/* 성별 선택 */}
                     <div>
@@ -220,6 +298,24 @@ export default function Signup() {
                     </button>
                 </form>
             </div>
+            {isAddressModalOpen &&
+                ReactDOM.createPortal(
+                    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                        <div className="relative p-6 bg-white rounded-lg shadow-lg w-full max-w-md">
+                            <button
+                                onClick={() => setIsAddressModalOpen(false)}
+                                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                            >
+                                닫기
+                            </button>
+                            <DaumPostcode
+                                onComplete={(data: any) => handleAddressSelect(data.address)}
+                                style={{ width: "100%", height: "450px" }}
+                            />
+                        </div>
+                    </div>,
+                    document.getElementById("global-modal") as HTMLElement
+                )}
         </div>
-    )
+    );
 }
