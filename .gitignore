@@ -21,3 +21,6 @@ venv/
 *.so
 *.dylib
 
+*. backup.bundle
+backup.bundle
+
