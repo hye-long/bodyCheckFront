@@ -30,8 +30,9 @@ export default function Signup() {
 
 
     useEffect(() => {
-        if (!document.getElementById("global-modal")) {
-            const modalDiv = document.createElement("div");
+        let modalDiv = document.getElementById("global-modal");
+        if (!modalDiv) {
+            modalDiv = document.createElement("div");
             modalDiv.id = "global-modal";
             document.body.appendChild(modalDiv);
         }
@@ -84,10 +85,12 @@ export default function Signup() {
         }
     };
     // w주소 선택 완료
-    const handleAddressSelect = (selectedAddress: string) => {
-        setField("address", selectedAddress);
+    const handleAddressSelect = (data: any) => {
+        setField('address', data.address); // 기본 주소 설정
+        setDetailedAddress(''); // 상세주소 초기화
         setIsAddressModalOpen(false); // 모달 닫기
     };
+
 
 
 
@@ -231,6 +234,20 @@ export default function Signup() {
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
                         />
                     </div>
+                    {/* 나이 */}
+                    <div>
+                        <label htmlFor="age" className="block text-sm font-medium text-gray-700">
+                            나이*
+                        </label>
+                        <input
+                            id="age"
+                            type="number"
+                            value={age}
+                            onChange={(e) => setField("age", e.target.value)}
+                            placeholder="나이를 입력하세요"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
+                        />
+                    </div>
                     {/* 주소 선택 */}
                     <div>
                         <label htmlFor="address" className="block text-sm font-medium text-gray-700">
@@ -240,8 +257,7 @@ export default function Signup() {
                             <input
                                 id="address"
                                 type="text"
-                                value={address}
-                                readOnly={true}
+                                value={address || ''}                                readOnly={true}
                                 onClick={()=> setIsAddressModalOpen(true)}
                                 placeholder="주소를 검색하세요"
                                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
@@ -254,6 +270,18 @@ export default function Signup() {
                                 주소검색
                             </button>
                         </div>
+                        {address && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <input
+                                    id="detailedAddress"
+                                    type="text"
+                                    value={detailedAddress}
+                                    onChange={(e) => setDetailedAddress(e.target.value)}
+                                    placeholder="상세주소를 검색하세요"
+                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                />
+                            </div>
+                        )}
                     </div>
 
 
@@ -309,7 +337,7 @@ export default function Signup() {
                                 닫기
                             </button>
                             <DaumPostcode
-                                onComplete={(data: any) => handleAddressSelect(data.address)}
+                                onComplete={handleAddressSelect} // 데이터 객체를 전달
                                 style={{ width: "100%", height: "450px" }}
                             />
                         </div>

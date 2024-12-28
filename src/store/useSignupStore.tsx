@@ -32,6 +32,7 @@ export const useSignupStore = create<SignupFormState>((set) => ({
     weight: 0,
     age: 0,
     bmi: null,
+    detailedAddress: null,
 
     isIdUnique: null,
     isSignupComplete: false,

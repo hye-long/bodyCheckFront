@@ -16,6 +16,7 @@ export const handleSignup = async (userData: {
     weight: number;
     bmi: number;
     age: number;
+    detailedAddress: string;
 }): Promise<void> => {
     const { id } = userData;
     await setDoc(doc(firestore, "users", id), userData);
