@@ -16,7 +16,7 @@ export interface SignupFormState {
     isSignupComplete: boolean;
     passwordError: string | null; // 비밀번호 오류 메시지
     confirmPasswordError: string | null; // 비밀번호 확인 오류 메시지
-    setField: <T extends keyof SignupFormState>(field: string, value: SignupFormState[T]) => void;
+    setField: <T extends keyof SignupFormState>(field: T, value: SignupFormState[T]) => void;
     validatePasswords: () => void; // 비밀번호 유효성 검사 함수
 }
 
@@ -32,7 +32,6 @@ export const useSignupStore = create<SignupFormState>((set) => ({
     weight: 0,
     age: 0,
     bmi: null,
-    detailedAddress: null,
 
     isIdUnique: null,
     isSignupComplete: false,
