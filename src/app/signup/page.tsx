@@ -211,7 +211,7 @@ export default function Signup() {
                             id="height"
                             type="number"
                             value={height}
-                            onChange={(e) => setField("height", e.target.value)}
+                            onChange={(e) => setField("height", parseFloat(e.target.value) || 0)}
                             placeholder="키 입력하세요"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
                         />
@@ -225,7 +225,7 @@ export default function Signup() {
                             id="weight"
                             type="number"
                             value={weight}
-                            onChange={(e) => setField("weight", e.target.value)}
+                            onChange={(e) => setField("weight", parseFloat(e.target.value) || 0)}
                             placeholder="몸무게를 입력하세요"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
                         />
@@ -239,7 +239,7 @@ export default function Signup() {
                             id="age"
                             type="number"
                             value={age}
-                            onChange={(e) => setField("age", e.target.value)}
+                            onChange={(e) => setField("age", parseFloat(e.target.value) || 0)}
                             placeholder="나이를 입력하세요"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2"
                         />
